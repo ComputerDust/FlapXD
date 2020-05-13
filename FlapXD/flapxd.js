@@ -9,6 +9,7 @@ var square_y = canvas.height/2;
 var square_vx = 0;
 var square_vy = 0;
 
+
 var gravity = 0.3;
 var gravity_max = 10;
 
