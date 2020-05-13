@@ -18,15 +18,15 @@ var square_x = 100;
 var square_y = canvas.height/2 - (square_dim/2);
 var square_vx = 0;
 var square_vy = 0;
-var square_vjump = -6;
+var square_vjump = -5;
 
 var gravity = 0.2;
 var gravity_max = 10;
 
-var wall_dimx = 64;
+var wall_dimx = 72;
 var wall_dimy = 500;
-var wall_vx = -3;
-var wall_spawningInterval = 100;
+var wall_vx = -5;
+var wall_spawningInterval = 64;
 var wall_separation = 150;
 var wall_currentSpawningInterval = 0;
 
@@ -92,9 +92,8 @@ function renderSquare(){
 function renderTickWalls(){
 	for (i = 0; i < walls.length; i++){
 		ctx.beginPath();
-		ctx.rect(walls[i].x, walls[i].y, wall_dimx, wall_dimy);
 		ctx.fillStyle = "rgb(0, 255, 0)";
-		ctx.fill();
+		ctx.fillRect(walls[i].x, walls[i].y, wall_dimx, wall_dimy);
 		ctx.closePath();
 		walls[i].x += wall_vx;
 		
