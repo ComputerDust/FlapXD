@@ -1,5 +1,7 @@
 //my name is dilan and i like to code lol
 
+var version = "beta1";
+
 var canvas = document.getElementById("canvasMain");
 var ctx = canvas.getContext("2d");
 
@@ -73,11 +75,15 @@ function tick(){
 	
 }
 
+
 function renderOutline(){
 	ctx.beginPath();
 	ctx.rect(0, 0, canvas.width, canvas.height);
 	ctx.strokeStyle = "white";
 	ctx.stroke();
+	ctx.fillStyle = "gray";
+	ctx.font = "15px Arial";
+	ctx.fillText("FlapXD! version " + version, 10, 20);
 	ctx.closePath();
 }
 
