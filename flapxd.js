@@ -1,6 +1,6 @@
 //my name is dilan and i like to code lol
 
-var version = "beta1";
+var version = "0.1";
 
 var canvas = document.getElementById("canvasMain");
 var ctx = canvas.getContext("2d");
