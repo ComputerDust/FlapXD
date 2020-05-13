@@ -1,6 +1,6 @@
 //my name is dilan and i like to code lol
 
-var version = "0.1";
+var version = "0.2";
 
 var canvas = document.getElementById("canvasMain");
 var ctx = canvas.getContext("2d");
@@ -9,9 +9,9 @@ document.addEventListener("keydown", keyPressEvent, false);
 document.addEventListener("keyup", keyReleaseEvent, false);
 
 
-
 //0 - start, 1 - playing, 2 - game over
 var game_stage = 0;
+var game_score = 0;
 
 var walls = [];
 
@@ -32,6 +32,8 @@ var wall_spawningInterval = 64;
 var wall_separation = 150;
 var wall_currentSpawningInterval = 0;
 
+var intersect_padding = 4;
+
 function reload(){
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	
@@ -39,6 +41,7 @@ function reload(){
 	
 	renderOutline();
 	renderSquare();
+	renderScore();
 	renderTickWalls();
 
 }
@@ -62,13 +65,18 @@ function tick(){
 	
 	if (square_y + square_dim >= canvas.height){
 		square_y = canvas.height - square_dim;
+		square_vy = 0;
+	}
+	if (square_y <= 0){
+		square_y = 0;
+		square_vy = 0;
 	}
 	
 	if (wall_currentSpawningInterval >= wall_spawningInterval){
 		let wy = Math.floor(Math.random() * (476 - 25 - wall_separation)) + 25 + wall_separation;
 		
-		walls[walls.length] = {x: 750, y:-wy, top: true};
-		walls[walls.length] = {x: 750, y:-wy + wall_dimy + wall_separation, top: false};
+		walls[walls.length] = {x: 750, y:-wy, top: true, score: false};
+		walls[walls.length] = {x: 750, y:-wy + wall_dimy + wall_separation, top: false, score: false};
 		wall_currentSpawningInterval = 0;
 	}
 	if (game_stage == 1) wall_currentSpawningInterval++;
@@ -83,6 +91,7 @@ function renderOutline(){
 	ctx.stroke();
 	ctx.fillStyle = "gray";
 	ctx.font = "15px Arial";
+	ctx.textAlign = "left";
 	ctx.fillText("FlapXD! version " + version, 10, 20);
 	ctx.closePath();
 }
@@ -101,13 +110,46 @@ function renderTickWalls(){
 		ctx.fillStyle = "rgb(0, 255, 0)";
 		ctx.fillRect(walls[i].x, walls[i].y, wall_dimx, wall_dimy);
 		ctx.closePath();
-		walls[i].x += wall_vx;
+		if (game_stage == 1) walls[i].x += wall_vx;
+		
+		if (walls[i].top && walls[i].x <= 100 - wall_dimx){
+			if (!walls[i].score){
+				game_score++;
+				walls[i].score = true;
+			}
+			
+		}
+		
+		if (intersectEvent(square_x + intersect_padding, square_y + intersect_padding, square_dim - intersect_padding, square_dim - intersect_padding, walls[i].x, walls[i].y, wall_dimx, wall_dimy)){
+			game_stage = 2;
+		}
 		
 		if (walls[i].x <= -wall_dimx){
 			walls.splice(i, 1);
 			i--;
 		}
 	}
+}
+
+function renderScore(){
+	ctx.beginPath();
+	//ctx.fillStyle = "rgba(255, 0, 0, 0.7)";
+	//ctx.fillRect(canvas.width - 85, 10, 75, 50);
+	ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+	ctx.font = "250px Arial";
+	ctx.textAlign = "center";
+	//ctx.fillText("" + game_score, canvas.width - 85 + (75/2), 45);
+	ctx.fillText("" + game_score, canvas.width / 2, canvas.height/2 + 75);
+	ctx.closePath();
+}
+
+function intersectEvent(x1, y1, w1, h1, x2, y2, w2, h2){
+	if ((x1 > x2 && x1 < x2 + w2) || (x1 + w1 > x2 && x1 + w1 < x2 + w2)){
+		if ((y1 > y2 && y1 < y2 + h2) || (y1 + h1 > y2 && y1 + h1 < y2 + h2)){
+			return true;
+		}
+	}
+	return false;
 }
 
 function keyPressEvent(e){
