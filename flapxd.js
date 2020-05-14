@@ -6,10 +6,13 @@
  * - make the return to main menu button work
  * - make an options menu (change color of square and rectangles)
  * - different messages for when you die
+ * - change credits to about
+ * - reorder stuff on home page of website
  * 
  */
 
-var version = "0.7";
+const version = "0.8";
+const debug = true;
 
 var canvas = document.getElementById("canvasMain");
 var ctx = canvas.getContext("2d");
@@ -58,9 +61,15 @@ var walls = [];
 var wall_dimx = 72;
 var wall_dimy = 500;
 var wall_vx = -5;
-var wall_spawningInterval = 64;
+const wall_vx_base = -5;
+const wall_vx_increment = -1;
+//-5, 64, every 50
+var wall_spawningInterval = 60;
+const wall_spawningInterval_base = 60;
+const wall_spawningInterval_increment = 2;
 var wall_separation = 150;
 var wall_currentSpawningInterval = 0;
+const wall_speedUpScoreInterval = 25;
 
 var intersect_padding = 4;
 
@@ -132,6 +141,12 @@ function tick(){
 		if (title_x > -5) title_x += title_vx;
 
 	}
+	
+	let multiplier_vx = Math.floor(game_score/wall_speedUpScoreInterval);
+	let multiplier_si = Math.floor((game_score+5)/wall_speedUpScoreInterval);
+	
+	wall_vx = wall_vx_base + (multiplier_vx * wall_vx_increment);
+	wall_spawningInterval = wall_spawningInterval_base + (multiplier_si * wall_spawningInterval_increment);
 
 }
 
@@ -253,6 +268,14 @@ function renderOutline(){
 	ctx.font = "15px Arial";
 	ctx.textAlign = "left";
 	ctx.fillText("FlapXD! version " + version, 10, 20);
+	
+	if (debug){
+		ctx.fillText("debug:"
+				+ " wall_vx: " + wall_vx
+				+ " wall_sI: " + wall_spawningInterval
+				, 10, canvas.height - 10);
+	}
+	
 	ctx.closePath();
 }
 
