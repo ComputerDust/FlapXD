@@ -11,8 +11,8 @@
  * 
  */
 
-const version = "0.8";
-const debug = true;
+const version = "0.9";
+var debug = false;
 
 var canvas = document.getElementById("canvasMain");
 var ctx = canvas.getContext("2d");
@@ -53,23 +53,27 @@ var square_y = canvas.height/2 - (square_dim/2);
 var square_vx = 0;
 var square_vy = 0;
 var square_vjump = -5;
+const square_vjump_base = -5;
+const square_vjump_increment = -0.2;
 
 var gravity = 0.2;
 var gravity_max = 10;
+const gravity_base = 0.2;
+const gravity_increment = 0.03
 
 var walls = [];
 var wall_dimx = 72;
 var wall_dimy = 500;
 var wall_vx = -5;
 const wall_vx_base = -5;
-const wall_vx_increment = -1;
+const wall_vx_increment = -0.5;
 //-5, 64, every 50
 var wall_spawningInterval = 60;
 const wall_spawningInterval_base = 60;
-const wall_spawningInterval_increment = 2;
+const wall_spawningInterval_increment = -2;
 var wall_separation = 150;
 var wall_currentSpawningInterval = 0;
-const wall_speedUpScoreInterval = 25;
+const wall_speedUpScoreInterval = 10;
 
 var intersect_padding = 4;
 
@@ -143,11 +147,14 @@ function tick(){
 	}
 	
 	let multiplier_vx = Math.floor(game_score/wall_speedUpScoreInterval);
-	let multiplier_si = Math.floor((game_score+5)/wall_speedUpScoreInterval);
+	let multiplier_si = Math.floor((game_score)/wall_speedUpScoreInterval);
+	
 	
 	wall_vx = wall_vx_base + (multiplier_vx * wall_vx_increment);
 	wall_spawningInterval = wall_spawningInterval_base + (multiplier_si * wall_spawningInterval_increment);
-
+	gravity = gravity_base + (multiplier_vx * gravity_increment);
+	square_vjump = square_vjump_base + (multiplier_vx * square_vjump_increment);
+	
 }
 
 function renderTitleScreen(){
@@ -273,6 +280,8 @@ function renderOutline(){
 		ctx.fillText("debug:"
 				+ " wall_vx: " + wall_vx
 				+ " wall_sI: " + wall_spawningInterval
+				+ " gravity: " + gravity
+				+ " square_vj: " + square_vjump
 				, 10, canvas.height - 10);
 	}
 	
@@ -425,4 +434,8 @@ function resetGame(state){
 	gameOver_oneTime = false;
 	square_vy = square_vjump;
 	game_stage = state;
+}
+
+function debugFunction(){
+	debug = true;
 }
