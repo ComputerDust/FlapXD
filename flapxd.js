@@ -11,7 +11,7 @@
  * 
  */
 
-const version = "0.11";
+const version = "0.12";
 var debug = false;
 
 var canvas = document.getElementById("canvasMain");
@@ -26,6 +26,10 @@ var game_stage = 0;
 var game_stage_trigger = false;
 var game_score = 0;
 var game_highScore = localStorage.getItem("interestingNumber");
+var game_color_square_id = parseInt(localStorage.getItem("colorSquare"));
+var game_color_square = "rgb(255, 0, 0)";
+var game_color_wall_id = parseInt(localStorage.getItem("colorWall"));
+var game_color_wall = "rgb(0, 255, 0)";
 var game_keys = true;
 var game_oneTime = false;
 
@@ -37,6 +41,11 @@ const title_vx_max = -10;
 const title_internal_vx = -15;
 var title_selected = 0;
 const title_selected_max = 2;
+var title_color_vselected = 2;
+const title_color_vselected_max = 3;
+var title_color_hselected = 8;
+const title_color_hselected_max = 8;
+var title_color_spacing = 75;
 
 const gameOver_y_original = -50;
 var gameOver_y = gameOver_y_original;
@@ -49,7 +58,9 @@ var gameOver_oneTime = false;
 
 var square_dim = 32;
 var square_x = 100;
-var square_y = canvas.height/2 - (square_dim/2);
+var square_y_original = canvas.height/2 - (square_dim/2);
+var square_y = square_y_original;
+var square_y_title_vreset = 3;
 var square_vx = 0;
 var square_vy = 0;
 var square_vjump = -5;
@@ -78,15 +89,28 @@ const wall_speedUpScoreInterval = 50;
 var intersect_padding = 4;
 
 function reload(){
-	
+
 	if (!game_oneTime){
 		if (game_highScore == null){
 			game_highScore = 0;
 			localStorage.setItem("interestingNumber", 0);
 		}
+		if (game_color_square_id == null){
+			game_color_square_id = 0;
+			localStorage.setItem("colorSquare", 0);
+		}else{
+			game_color_square = colorGet(game_color_square_id);
+		}
+		
+		if (game_color_wall_id == null){
+			game_color_wall_id = 3;
+			localStorage.setItem("colorWall", 3);
+		}else{
+			game_color_wall = colorGet(game_color_wall_id);
+		}
 		game_oneTime = true;
 	}
-	
+
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 	tick();
@@ -97,7 +121,7 @@ function reload(){
 	renderScore();
 	renderTickWalls();
 	if (game_stage == 2) renderGameOverScreen();
-	
+
 	renderHighScore();
 	renderOutline();
 
@@ -145,14 +169,14 @@ function tick(){
 		if (title_x > -5) title_x += title_vx;
 
 	}
-	
+
 	let multiplier = Math.floor(game_score/wall_speedUpScoreInterval);
-	
+
 	wall_vx = wall_vx_base + (multiplier * wall_vx_increment);
 	wall_spawningInterval = wall_spawningInterval_base + (multiplier * wall_spawningInterval_increment);
 	gravity = gravity_base + (multiplier * gravity_increment);
 	square_vjump = square_vjump_base + (multiplier * square_vjump_increment);
-	
+
 }
 
 function renderTitleScreen(){
@@ -167,25 +191,105 @@ function renderTitleScreen(){
 	ctx.fillText("Play", title_x - 25, 225);
 
 	rts_colorSet(1, title_selected, false);
-	ctx.fillText("Options", title_x - 25, 275);
+	ctx.fillText("Change Colors", title_x - 25, 275);
 
 	rts_colorSet(2, title_selected, false);
-	ctx.fillText("Credits", title_x - 25, 325);
+	ctx.fillText("About", title_x - 25, 325);
 
-	rts_colorSet(-1, title_selected, false);
 	ctx.font = "20px Arial";
+	rts_colorSet(-1, title_selected, false);
 	ctx.fillText("[space] jump/enter", title_x - 25, 400);
-	ctx.fillText("[up/down] select", title_x - 25, 425);
+	ctx.fillText("[arrows] select", title_x - 25, 425);
+	
+	if (square_y > square_y_original && game_stage == 0){
+		if (square_y - square_y_original < square_y_title_vreset) square_y = square_y_original;
+		square_y -= square_y_title_vreset;
+	}
+	if (square_y < square_y_original && game_stage == 0){
+		if (square_y_original - square_y < square_y_title_vreset) square_y = square_y_original;
+		square_y += square_y_title_vreset;
+	}
+	
+	if (game_stage == 3){
+
+		ctx.fillStyle = "rgb(0, 255, 0)";
+		ctx.font = "90px Impact";
+		ctx.fillText("Colors", title_x + 500, 150);
+		ctx.font = "20px Arial";
+		ctx.textAlign = "center";
+		ctx.fillStyle = "rgb(255, 255, 255)";
+		ctx.fillText("square", title_x + 480, 200);
+		ctx.fillText("walls", title_x + 480, 200 + title_color_spacing);
+		ctx.textAlign = "right";
+		
+		rts_colorSelected();
+		rts_colorSelecting();
+		
+		rts_colorSet(0, title_selected, true);
+		
+		for (i = 0; i < 2; i++){
+			ctx.fillStyle = colorGet(0);
+			ctx.fillRect(title_x + 100, 215 + (title_color_spacing*i), 32, 32);
+
+			ctx.fillStyle = colorGet(1);
+			ctx.fillRect(title_x + 148, 215 + (title_color_spacing*i), 32, 32);
+
+			ctx.fillStyle = colorGet(2);
+			ctx.fillRect(title_x + 196, 215 + (title_color_spacing*i), 32, 32);
+
+			ctx.fillStyle = colorGet(3);
+			ctx.fillRect(title_x + 244, 215 + (title_color_spacing*i), 32, 32);
+
+			ctx.fillStyle = colorGet(4);
+			ctx.fillRect(title_x + 292, 215 + (title_color_spacing*i), 32, 32);
+
+			ctx.fillStyle = colorGet(5);
+			ctx.fillRect(title_x + 340, 215 + (title_color_spacing*i), 32, 32);
+
+			ctx.fillStyle = colorGet(6);
+			ctx.fillRect(title_x + 388, 215 + (title_color_spacing*i), 32, 32);
+
+			ctx.fillStyle = colorGet(7);
+			ctx.fillRect(title_x + 436, 215 + (title_color_spacing*i), 32, 32);
+
+			ctx.fillStyle = colorGet(8);
+			ctx.fillRect(title_x + 484, 215 + (title_color_spacing*i), 32, 32);
+		}
+		rts_color_colorSet(2);
+		ctx.font = "35px Arial";
+		ctx.fillText("Back", title_x + 484, 400);
+		
+		rts_color_colorSet(3);
+		ctx.font = "20px Arial";
+		ctx.fillText("Reset to default", title_x + 484, 450);
+		
+		if ((title_x > title_x_original - 500) && !game_stage_trigger){
+			title_x += title_internal_vx;
+		}
+
+		
+		if (game_stage_trigger){
+			if (title_x < title_x_original) title_x -= title_internal_vx;
+			else{
+				game_stage_trigger = false;
+				game_stage = 0;
+			}
+		}
+
+	}
 
 	if (game_stage == 4){
 
 		ctx.fillStyle = "rgb(0, 255, 0)";
 		ctx.font = "90px Impact";
-		ctx.fillText("Credits", title_x + 325, 150);
-		ctx.font = "24px Arial";
+		ctx.fillText("About", title_x + 325, 150);
+		ctx.font = "20px Arial";
 		rts_colorSet(0, title_selected, true);
-		ctx.fillText("Created by Dilan ;)", title_x + 300, 225);
+		ctx.fillText("FlapXD!!!!!!!!!!!!!!!!!!!", title_x + 300, 200)
+		ctx.fillText("version " + version, title_x + 300, 225);
+		ctx.fillText("created by Dilan :)", title_x + 300, 250);
 		ctx.fillText("blockhead7360.com/flapxd", title_x + 300, 275);
+
 
 		rts_colorSet(1, title_selected, true);
 		ctx.font = "35px Arial";
@@ -197,14 +301,43 @@ function renderTitleScreen(){
 		if (game_stage_trigger){
 			if (title_x < title_x_original) title_x -= title_internal_vx;
 			else{
-				game_stage = 0;
 				game_stage_trigger = false;
+				game_stage = 0;
 			}
 		}
 
 	}
 
 	ctx.closePath();
+}
+
+function rts_colorSelected(){
+	ctx.strokeStyle = "rgb(255, 255, 255)";
+	ctx.strokeRect(title_x + 92 + (48 * game_color_square_id), 207, 48, 48);
+	ctx.strokeRect(title_x + 92 + (48 * game_color_wall_id), 207 + title_color_spacing, 48, 48);
+}
+
+function rts_colorSelecting(){
+	if (title_color_vselected < 2){
+		ctx.strokeStyle = "rgb(255, 255, 0)";
+		
+		ctx.strokeRect(title_x + 92 + (48 * title_color_hselected), 207 + (title_color_spacing * title_color_vselected), 48, 48);
+		
+	}
+	
+}
+
+function rts_color_colorSet(current){
+	if (game_stage == 3){
+		
+		if (current == title_color_vselected){
+			ctx.fillStyle = "rgb(255, 255, 0)";
+		}else{
+			ctx.fillStyle = "rgb(255, 255, 255)";
+		}
+		
+		
+	}
 }
 
 function rts_colorSet(current, actual, selected){
@@ -273,7 +406,7 @@ function renderOutline(){
 	ctx.font = "15px Arial";
 	ctx.textAlign = "left";
 	ctx.fillText("FlapXD! version " + version, 10, 20);
-	
+
 	if (debug){
 		ctx.fillText("debug:"
 				+ " wall_vx: " + wall_vx
@@ -282,14 +415,14 @@ function renderOutline(){
 				+ " square_vj: " + square_vjump
 				, 10, canvas.height - 10);
 	}
-	
+
 	ctx.closePath();
 }
 
 function renderSquare(){
 	ctx.beginPath();
 	ctx.rect(square_x, square_y, square_dim, square_dim);
-	ctx.fillStyle = "red";
+	ctx.fillStyle = game_color_square;
 	ctx.fill();
 	ctx.closePath();
 }
@@ -297,7 +430,7 @@ function renderSquare(){
 function renderTickWalls(){
 	for (i = 0; i < walls.length; i++){
 		ctx.beginPath();
-		ctx.fillStyle = "rgb(0, 255, 0)";
+		ctx.fillStyle = game_color_wall;
 		ctx.fillRect(walls[i].x, walls[i].y, wall_dimx, wall_dimy);
 		ctx.closePath();
 		if (game_stage == 1) walls[i].x += wall_vx;
@@ -328,7 +461,7 @@ function renderScore(){
 	ctx.textAlign = "center";
 	if (game_stage == 1 || game_stage == 2) ctx.fillText("" + game_score, canvas.width/2, canvas.height/2 + 75);
 	else ctx.fillText("", canvas.width/2, canvas.height/2 + 75);
-	
+
 	ctx.closePath();
 }
 
@@ -336,7 +469,7 @@ function renderHighScore(){
 	ctx.beginPath();
 	ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
 	ctx.fillRect(canvas.width - 200, canvas.height - 30, 200, 30);
-	
+
 	ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
 	ctx.font = "20px Arial";
 	ctx.textAlign = "center";
@@ -374,7 +507,7 @@ function keyPressEvent(e){
 					square_vy = square_vjump;
 				}
 				if (title_selected == 1){
-
+					game_stage = 3;
 				}
 				if (title_selected == 2){
 					game_stage = 4;
@@ -401,7 +534,60 @@ function keyPressEvent(e){
 				if (gameOver_selected == 0){
 					resetGame(1);				
 				}
+				if (gameOver_selected == 1){
+					resetGame(0);
+				}
 			}
+		}
+
+		else if (game_stage == 3){
+			
+			if (e.key == "Down" || e.key == "ArrowDown"){
+				if (title_color_vselected < title_color_vselected_max){
+					title_color_vselected++;
+				}
+			}
+			if (e.key == "Up" || e.key == "ArrowUp"){
+				if (title_color_vselected > 0){
+					title_color_vselected--;
+				}
+			}
+			if (e.key == "Right" || e.key == "ArrowRight"){
+				if (title_color_hselected < title_color_hselected_max){
+					title_color_hselected++;
+				}
+			}
+			if (e.key == "Left" || e.key == "ArrowLeft"){
+				if (title_color_hselected > 0){
+					title_color_hselected--;
+				}
+			}
+			if (e.key == " "){
+				if (title_color_vselected == 0){
+					game_color_square_id = title_color_hselected;
+					localStorage.setItem("colorSquare", title_color_hselected)
+					game_color_square = colorGet(title_color_hselected);
+					
+				}
+				if (title_color_vselected == 1){
+					game_color_wall_id = title_color_hselected;
+					localStorage.setItem("colorWall", title_color_hselected)
+					game_color_wall = colorGet(title_color_hselected);
+					
+				}
+				if (title_color_vselected == 2){
+					game_stage_trigger = true;
+				}
+				if (title_color_vselected == 3){
+					game_color_square_id = 0;
+					localStorage.setItem("colorSquare", 0);
+					game_color_square = colorGet(0);
+					game_color_wall_id = 3;
+					localStorage.setItem("colorWall", 3);
+					game_color_wall = colorGet(3);
+				}
+			}
+			
 		}
 
 		else if (game_stage == 4){
@@ -420,7 +606,7 @@ function setHighScore(){
 		game_highScore = game_score;
 		localStorage.setItem("interestingNumber", game_score);
 	}
-	
+
 }
 
 function resetGame(state){
@@ -431,8 +617,38 @@ function resetGame(state){
 	gameOver_selected = 0;
 	gameOver_oneTime = false;
 	square_vy = square_vjump;
+	if (state == 0){
+		title_x = title_x_original;
+		title_vx = 0;
+	}
 	game_stage = state;
 }
+
+function colorGet(colorId){
+	
+	let color = "";
+	
+	
+	
+	switch(colorId){
+	
+	case 0: color = "rgb(255, 0, 0)"; break;
+	case 1: color = "rgb(255, 155, 0)"; break;
+	case 2: color = "rgb(255, 255, 0)"; break;
+	case 3: color = "rgb(0, 255, 0)"; break;
+	case 4: color = "rgb(0, 0, 255)"; break;
+	case 5: color = "rgb(255, 155, 255)"; break;
+	case 6: color = "rgb(180, 0, 180)"; break;
+	case 7: color = "rgb(255, 255, 255)"; break;
+	case 8: color = "rgb(180, 180, 180)"; break;
+	default: color = "rgb(255, 0, 0)"; break;
+	
+	}
+
+	return color;
+	
+}
+
 
 function debugFunction(){
 	debug = true;
