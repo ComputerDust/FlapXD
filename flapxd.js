@@ -11,7 +11,7 @@
  * 
  */
 
-const version = "0.9";
+const version = "0.10";
 var debug = false;
 
 var canvas = document.getElementById("canvasMain");
@@ -73,7 +73,7 @@ const wall_spawningInterval_base = 60;
 const wall_spawningInterval_increment = -2;
 var wall_separation = 150;
 var wall_currentSpawningInterval = 0;
-const wall_speedUpScoreInterval = 10;
+const wall_speedUpScoreInterval = 50;
 
 var intersect_padding = 4;
 
@@ -146,14 +146,12 @@ function tick(){
 
 	}
 	
-	let multiplier_vx = Math.floor(game_score/wall_speedUpScoreInterval);
-	let multiplier_si = Math.floor((game_score)/wall_speedUpScoreInterval);
+	let multiplier = Math.floor(game_score/wall_speedUpScoreInterval);
 	
-	
-	wall_vx = wall_vx_base + (multiplier_vx * wall_vx_increment);
-	wall_spawningInterval = wall_spawningInterval_base + (multiplier_si * wall_spawningInterval_increment);
-	gravity = gravity_base + (multiplier_vx * gravity_increment);
-	square_vjump = square_vjump_base + (multiplier_vx * square_vjump_increment);
+	wall_vx = wall_vx_base + (multiplier * wall_vx_increment);
+	wall_spawningInterval = wall_spawningInterval_base + (multiplier * wall_spawningInterval_increment);
+	gravity = gravity_base + (multiplier * gravity_increment);
+	square_vjump = square_vjump_base + (multiplier * square_vjump_increment);
 	
 }
 
