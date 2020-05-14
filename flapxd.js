@@ -1,6 +1,6 @@
 //my name is dilan and i like to code lol
 
-var version = "0.4";
+var version = "0.5";
 
 var canvas = document.getElementById("canvasMain");
 var ctx = canvas.getContext("2d");
@@ -15,6 +15,7 @@ var game_stage_trigger = false;
 var game_score = 0;
 var game_highScore = localStorage.getItem("interestingNumber");
 var game_keys = true;
+var game_oneTime = false;
 
 const title_x_original = canvas.width - 25;
 var title_x = title_x_original;
@@ -32,6 +33,7 @@ var gameOver_menu_y = gameOver_menu_y_original;
 const gameOver_internal_vy = 5;
 var gameOver_selected = 0;
 var gameOver_selected_max = 1;
+var gameOver_oneTime = false;
 
 var square_dim = 32;
 var square_x = 100;
@@ -54,18 +56,28 @@ var wall_currentSpawningInterval = 0;
 var intersect_padding = 4;
 
 function reload(){
+	
+	if (!game_oneTime){
+		if (game_highScore == null){
+			game_highScore = 0;
+			localStorage.setItem("interestingNumber", 0);
+		}
+		game_oneTime = true;
+	}
+	
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 	tick();
 
 	if (title_x > -5) renderTitleScreen();
 
-	renderOutline();
 	renderSquare();
 	renderScore();
 	renderTickWalls();
 	if (game_stage == 2) renderGameOverScreen();
-
+	
+	renderHighScore();
+	renderOutline();
 
 }
 setInterval(reload, 10);
@@ -206,15 +218,18 @@ function renderGameOverScreen(){
 
 	ctx.closePath();
 
+	if (!gameOver_oneTime){
+		setHighScore();
+		gameOver_oneTime = true;
+	}
 
 	if (gameOver_y < 100){
 		game_keys = false;
 		gameOver_y += gameOver_internal_vy;
 	}else{
 		if (gameOver_menu_y > canvas.height - 100){
-			gameOver_menu_y -= gameOver_internal_vy;
-		}else{
 			game_keys = true;
+			gameOver_menu_y -= gameOver_internal_vy;
 		}
 	}
 
@@ -274,6 +289,19 @@ function renderScore(){
 	ctx.textAlign = "center";
 	if (game_stage == 1 || game_stage == 2) ctx.fillText("" + game_score, canvas.width/2, canvas.height/2 + 75);
 	else ctx.fillText("", canvas.width/2, canvas.height/2 + 75);
+	
+	ctx.closePath();
+}
+
+function renderHighScore(){
+	ctx.beginPath();
+	ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
+	ctx.fillRect(canvas.width - 200, canvas.height - 30, 200, 30);
+	
+	ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+	ctx.font = "20px Arial";
+	ctx.textAlign = "center";
+	ctx.fillText("High score: " + game_highScore, canvas.width - 100, canvas.height - 8);
 	ctx.closePath();
 }
 
@@ -304,6 +332,7 @@ function keyPressEvent(e){
 			if (e.key == " "){
 				if (title_selected == 0){
 					game_stage = 1;
+					square_vy = square_vjump;
 				}
 				if (title_selected == 1){
 
@@ -346,11 +375,22 @@ function keyReleaseEvent(e){
 
 }
 
+function setHighScore(){
+
+	if (game_score > game_highScore){
+		game_highScore = game_score;
+		localStorage.setItem("interestingNumber", game_score);
+	}
+	
+}
+
 function resetGame(state){
 	game_score = 0;
 	walls = [];
 	gameOver_y = gameOver_y_original;
 	gameOver_menu_y = gameOver_menu_y_original;
 	gameOver_selected = 0;
+	gameOver_oneTime = false;
+	square_vy = square_vjump;
 	game_stage = state;
 }
