@@ -1,6 +1,15 @@
 //my name is dilan and i like to code lol
 
-var version = "0.5";
+/*
+ * TODO
+ * 
+ * - make the return to main menu button work
+ * - make an options menu (change color of square and rectangles)
+ * - different messages for when you die
+ * 
+ */
+
+var version = "0.6";
 
 var canvas = document.getElementById("canvasMain");
 var ctx = canvas.getContext("2d");
@@ -40,17 +49,17 @@ var square_x = 100;
 var square_y = canvas.height/2 - (square_dim/2);
 var square_vx = 0;
 var square_vy = 0;
-var square_vjump = -5;
+var square_vjump = -6;
 
-var gravity = 0.2;
+var gravity = 0.3;
 var gravity_max = 10;
 
 var walls = [];
 var wall_dimx = 72;
 var wall_dimy = 500;
-var wall_vx = -5;
-var wall_spawningInterval = 64;
-var wall_separation = 150;
+var wall_vx = -8;
+var wall_spawningInterval = 48;
+var wall_separation = 175;
 var wall_currentSpawningInterval = 0;
 
 var intersect_padding = 4;
