@@ -1,6 +1,6 @@
 //my name is dilan and i like to code lol
 
-var version = "0.2";
+var version = "0.3";
 
 var canvas = document.getElementById("canvasMain");
 var ctx = canvas.getContext("2d");
@@ -9,11 +9,19 @@ document.addEventListener("keydown", keyPressEvent, false);
 document.addEventListener("keyup", keyReleaseEvent, false);
 
 
-//0 - start, 1 - playing, 2 - game over
+//0 - start, 1 - playing, 2 - game over, 3 - options, 4 - credits
 var game_stage = 0;
+var game_stage_trigger = false;
 var game_score = 0;
 
-var walls = [];
+const title_x_original = canvas.width - 25;
+var title_x = title_x_original;
+var title_vx = 0;
+const title_ax = -0.1;
+const title_vx_max = -10;
+const title_internal_vx = -15;
+var title_selected = 0;
+const title_selected_max = 2;
 
 var square_dim = 32;
 var square_x = 100;
@@ -25,6 +33,7 @@ var square_vjump = -5;
 var gravity = 0.2;
 var gravity_max = 10;
 
+var walls = [];
 var wall_dimx = 72;
 var wall_dimy = 500;
 var wall_vx = -5;
@@ -36,9 +45,11 @@ var intersect_padding = 4;
 
 function reload(){
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	
+
 	tick();
-	
+
+	if (title_x > -5) renderTitleScreen();
+
 	renderOutline();
 	renderSquare();
 	renderScore();
@@ -55,14 +66,14 @@ function tick(){
 	if (square_vy >= gravity_max){
 		square_vy = gravity_max;
 	}
-	
+
 	if (game_stage == 1){
 		square_x += square_vx;
 		square_y += square_vy;
-				
+
 	}
 
-	
+
 	if (square_y + square_dim >= canvas.height){
 		square_y = canvas.height - square_dim;
 		square_vy = 0;
@@ -71,18 +82,102 @@ function tick(){
 		square_y = 0;
 		square_vy = 0;
 	}
-	
+
 	if (wall_currentSpawningInterval >= wall_spawningInterval){
 		let wy = Math.floor(Math.random() * (476 - 25 - wall_separation)) + 25 + wall_separation;
-		
+
 		walls[walls.length] = {x: 750, y:-wy, top: true, score: false};
 		walls[walls.length] = {x: 750, y:-wy + wall_dimy + wall_separation, top: false, score: false};
 		wall_currentSpawningInterval = 0;
 	}
-	if (game_stage == 1) wall_currentSpawningInterval++;
-	
+	if (game_stage == 1){
+		wall_currentSpawningInterval++;
+
+		if (title_vx <= title_vx_max) title_vx = title_vx_max;
+		else title_vx += title_ax;
+
+		if (title_x > -5) title_x += title_vx;
+
+	}
+
 }
 
+function renderTitleScreen(){
+	ctx.beginPath();
+	ctx.fillStyle = "rgb(255, 255, 0)";
+	ctx.font = "90px Impact";
+	ctx.textAlign = "right";
+	ctx.fillText("FlapXD", title_x, 150);
+	ctx.font = "35px Arial";
+
+	rts_colorSet(0, false);
+	ctx.fillText("Play", title_x - 25, 225);
+
+	rts_colorSet(1, false);
+	ctx.fillText("Options", title_x - 25, 275);
+
+	rts_colorSet(2, false);
+	ctx.fillText("Credits", title_x - 25, 325);
+
+	rts_colorSet(-1, false);
+	ctx.font = "20px Arial";
+	ctx.fillText("[space] jump/enter", title_x - 25, 400);
+	ctx.fillText("[up/down] select", title_x - 25, 425);
+
+	if (game_stage == 4){
+		
+		ctx.fillStyle = "rgb(255, 255, 0)";
+		ctx.font = "90px Impact";
+		ctx.fillText("Credits", title_x + 325, 150);
+		ctx.font = "24px Arial";
+		rts_colorSet(0, true);
+		ctx.fillText("Created by Dilan ;)", title_x + 300, 225);
+		ctx.fillText("blockhead7360.com/flapxd", title_x + 300, 250);
+		
+		rts_colorSet(1, true);
+		ctx.font = "35px Arial";
+		ctx.fillText("Back", title_x + 300, 325);
+		if ((title_x > title_x_original - 325) && !game_stage_trigger){
+			title_x += title_internal_vx;
+		}
+		
+		if (game_stage_trigger){
+			if (title_x < title_x_original) title_x -= title_internal_vx;
+			else{
+				game_stage = 0;
+				game_stage_trigger = false;
+			}
+		}
+		
+	}
+
+	ctx.closePath();
+}
+
+function rts_colorSet(current, selected){
+
+	if (selected){
+		if (current == 0){
+			ctx.fillStyle = "rgb(255, 255, 255)";
+		}
+		if (current == 1){
+			ctx.fillStyle = "rgb(0, 255, 0)";
+		}
+	}
+
+	else{
+		if (game_stage != 0){
+
+			ctx.fillStyle = "gray";
+		}
+
+		else if (current == title_selected){
+			ctx.fillStyle = "rgb(0, 255, 0)";
+		}else{
+			ctx.fillStyle = "rgb(255, 255, 255)";
+		}
+	}
+}
 
 function renderOutline(){
 	ctx.beginPath();
@@ -111,19 +206,19 @@ function renderTickWalls(){
 		ctx.fillRect(walls[i].x, walls[i].y, wall_dimx, wall_dimy);
 		ctx.closePath();
 		if (game_stage == 1) walls[i].x += wall_vx;
-		
+
 		if (walls[i].top && walls[i].x <= 100 - wall_dimx){
 			if (!walls[i].score){
 				game_score++;
 				walls[i].score = true;
 			}
-			
+
 		}
-		
+
 		if (intersectEvent(square_x + intersect_padding, square_y + intersect_padding, square_dim - intersect_padding, square_dim - intersect_padding, walls[i].x, walls[i].y, wall_dimx, wall_dimy)){
 			game_stage = 2;
 		}
-		
+
 		if (walls[i].x <= -wall_dimx){
 			walls.splice(i, 1);
 			i--;
@@ -133,13 +228,11 @@ function renderTickWalls(){
 
 function renderScore(){
 	ctx.beginPath();
-	//ctx.fillStyle = "rgba(255, 0, 0, 0.7)";
-	//ctx.fillRect(canvas.width - 85, 10, 75, 50);
 	ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
 	ctx.font = "250px Arial";
 	ctx.textAlign = "center";
-	//ctx.fillText("" + game_score, canvas.width - 85 + (75/2), 45);
-	ctx.fillText("" + game_score, canvas.width / 2, canvas.height/2 + 75);
+	if (game_stage == 1 || game_stage == 2) ctx.fillText("" + game_score, canvas.width/2, canvas.height/2 + 75);
+	else ctx.fillText("", canvas.width/2, canvas.height/2 + 75);
 	ctx.closePath();
 }
 
@@ -153,14 +246,43 @@ function intersectEvent(x1, y1, w1, h1, x2, y2, w2, h2){
 }
 
 function keyPressEvent(e){
-	if (e.key == " "){
-		if (game_stage == 0){
-			game_stage = 1;
+
+	if (game_stage == 0){
+		if (e.key == "Down" || e.key == "ArrowDown"){
+			if (title_selected < title_selected_max){
+				title_selected++;
+			}
 		}
-		square_vy = square_vjump;
+		if (e.key == "Up" || e.key == "ArrowUp"){
+			if (title_selected > 0){
+				title_selected--;
+			}
+		}
+
+		if (e.key == " "){
+			if (title_selected == 0){
+				game_stage = 1;
+			}
+			if (title_selected == 1){
+
+			}
+			if (title_selected == 2){
+				game_stage = 4;
+			}
+		}
+
 	}
+
+	else if (game_stage == 1){
+		if (e.key == " ") square_vy = square_vjump;
+	}
+	
+	else if (game_stage == 4){
+		if (e.key == " ") game_stage_trigger = true;
+	}
+
 }
 
 function keyReleaseEvent(e){
-	
+
 }
