@@ -1,6 +1,6 @@
 //my name is dilan and i like to code lol
 
-var version = "0.3";
+var version = "0.4";
 
 var canvas = document.getElementById("canvasMain");
 var ctx = canvas.getContext("2d");
@@ -13,6 +13,8 @@ document.addEventListener("keyup", keyReleaseEvent, false);
 var game_stage = 0;
 var game_stage_trigger = false;
 var game_score = 0;
+var game_highScore = localStorage.getItem("interestingNumber");
+var game_keys = true;
 
 const title_x_original = canvas.width - 25;
 var title_x = title_x_original;
@@ -22,6 +24,14 @@ const title_vx_max = -10;
 const title_internal_vx = -15;
 var title_selected = 0;
 const title_selected_max = 2;
+
+const gameOver_y_original = -50;
+var gameOver_y = gameOver_y_original;
+const gameOver_menu_y_original = canvas.height + 100;
+var gameOver_menu_y = gameOver_menu_y_original;
+const gameOver_internal_vy = 5;
+var gameOver_selected = 0;
+var gameOver_selected_max = 1;
 
 var square_dim = 32;
 var square_x = 100;
@@ -54,6 +64,8 @@ function reload(){
 	renderSquare();
 	renderScore();
 	renderTickWalls();
+	if (game_stage == 2) renderGameOverScreen();
+
 
 }
 setInterval(reload, 10);
@@ -104,43 +116,43 @@ function tick(){
 
 function renderTitleScreen(){
 	ctx.beginPath();
-	ctx.fillStyle = "rgb(255, 255, 0)";
+	ctx.fillStyle = "rgb(0, 255, 0)";
 	ctx.font = "90px Impact";
 	ctx.textAlign = "right";
 	ctx.fillText("FlapXD", title_x, 150);
 	ctx.font = "35px Arial";
 
-	rts_colorSet(0, false);
+	rts_colorSet(0, title_selected, false);
 	ctx.fillText("Play", title_x - 25, 225);
 
-	rts_colorSet(1, false);
+	rts_colorSet(1, title_selected, false);
 	ctx.fillText("Options", title_x - 25, 275);
 
-	rts_colorSet(2, false);
+	rts_colorSet(2, title_selected, false);
 	ctx.fillText("Credits", title_x - 25, 325);
 
-	rts_colorSet(-1, false);
+	rts_colorSet(-1, title_selected, false);
 	ctx.font = "20px Arial";
 	ctx.fillText("[space] jump/enter", title_x - 25, 400);
 	ctx.fillText("[up/down] select", title_x - 25, 425);
 
 	if (game_stage == 4){
-		
-		ctx.fillStyle = "rgb(255, 255, 0)";
+
+		ctx.fillStyle = "rgb(0, 255, 0)";
 		ctx.font = "90px Impact";
 		ctx.fillText("Credits", title_x + 325, 150);
 		ctx.font = "24px Arial";
-		rts_colorSet(0, true);
+		rts_colorSet(0, title_selected, true);
 		ctx.fillText("Created by Dilan ;)", title_x + 300, 225);
-		ctx.fillText("blockhead7360.com/flapxd", title_x + 300, 250);
-		
-		rts_colorSet(1, true);
+		ctx.fillText("blockhead7360.com/flapxd", title_x + 300, 275);
+
+		rts_colorSet(1, title_selected, true);
 		ctx.font = "35px Arial";
 		ctx.fillText("Back", title_x + 300, 325);
 		if ((title_x > title_x_original - 325) && !game_stage_trigger){
 			title_x += title_internal_vx;
 		}
-		
+
 		if (game_stage_trigger){
 			if (title_x < title_x_original) title_x -= title_internal_vx;
 			else{
@@ -148,35 +160,64 @@ function renderTitleScreen(){
 				game_stage_trigger = false;
 			}
 		}
-		
+
 	}
 
 	ctx.closePath();
 }
 
-function rts_colorSet(current, selected){
+function rts_colorSet(current, actual, selected){
 
 	if (selected){
 		if (current == 0){
 			ctx.fillStyle = "rgb(255, 255, 255)";
 		}
 		if (current == 1){
-			ctx.fillStyle = "rgb(0, 255, 0)";
+			ctx.fillStyle = "rgb(255, 255, 0)";
 		}
 	}
 
 	else{
-		if (game_stage != 0){
+		if (game_stage != 0 && game_stage != 2){
 
 			ctx.fillStyle = "gray";
 		}
 
-		else if (current == title_selected){
-			ctx.fillStyle = "rgb(0, 255, 0)";
+		else if (current == actual){
+			ctx.fillStyle = "rgb(255, 255, 0)";
 		}else{
 			ctx.fillStyle = "rgb(255, 255, 255)";
 		}
 	}
+}
+
+function renderGameOverScreen(){
+	ctx.beginPath();
+	ctx.fillStyle = "rgb(255, 0, 0)";
+	ctx.font = "100px Impact";
+	ctx.textAlign = "center";
+	ctx.fillText("Loser!", canvas.width/2, gameOver_y);
+
+	ctx.font = "24px Arial";
+	rts_colorSet(0, gameOver_selected, false);
+	ctx.fillText("Play again", canvas.width/2, gameOver_menu_y);
+	rts_colorSet(1, gameOver_selected, false);
+	ctx.fillText("Return to main menu", canvas.width/2, gameOver_menu_y + 50);
+
+	ctx.closePath();
+
+
+	if (gameOver_y < 100){
+		game_keys = false;
+		gameOver_y += gameOver_internal_vy;
+	}else{
+		if (gameOver_menu_y > canvas.height - 100){
+			gameOver_menu_y -= gameOver_internal_vy;
+		}else{
+			game_keys = true;
+		}
+	}
+
 }
 
 function renderOutline(){
@@ -247,42 +288,69 @@ function intersectEvent(x1, y1, w1, h1, x2, y2, w2, h2){
 
 function keyPressEvent(e){
 
-	if (game_stage == 0){
-		if (e.key == "Down" || e.key == "ArrowDown"){
-			if (title_selected < title_selected_max){
-				title_selected++;
+	if (game_keys){
+		if (game_stage == 0){
+			if (e.key == "Down" || e.key == "ArrowDown"){
+				if (title_selected < title_selected_max){
+					title_selected++;
+				}
+			}
+			if (e.key == "Up" || e.key == "ArrowUp"){
+				if (title_selected > 0){
+					title_selected--;
+				}
+			}
+
+			if (e.key == " "){
+				if (title_selected == 0){
+					game_stage = 1;
+				}
+				if (title_selected == 1){
+
+				}
+				if (title_selected == 2){
+					game_stage = 4;
+				}
+			}
+
+		}
+
+		else if (game_stage == 1){
+			if (e.key == " ") square_vy = square_vjump;
+		}
+		else if (game_stage == 2){
+			if (e.key == "Down" || e.key == "ArrowDown"){
+				if (gameOver_selected < gameOver_selected_max){
+					gameOver_selected++;
+				}
+			}
+			if (e.key == "Up" || e.key == "ArrowUp"){
+				if (gameOver_selected > 0){
+					gameOver_selected--;
+				}
+			}
+			if (e.key == " "){
+				if (gameOver_selected == 0){
+					resetGame(1);				
+				}
 			}
 		}
-		if (e.key == "Up" || e.key == "ArrowUp"){
-			if (title_selected > 0){
-				title_selected--;
-			}
+
+		else if (game_stage == 4){
+			if (e.key == " ") game_stage_trigger = true;
 		}
-
-		if (e.key == " "){
-			if (title_selected == 0){
-				game_stage = 1;
-			}
-			if (title_selected == 1){
-
-			}
-			if (title_selected == 2){
-				game_stage = 4;
-			}
-		}
-
 	}
-
-	else if (game_stage == 1){
-		if (e.key == " ") square_vy = square_vjump;
-	}
-	
-	else if (game_stage == 4){
-		if (e.key == " ") game_stage_trigger = true;
-	}
-
 }
 
 function keyReleaseEvent(e){
 
+}
+
+function resetGame(state){
+	game_score = 0;
+	walls = [];
+	gameOver_y = gameOver_y_original;
+	gameOver_menu_y = gameOver_menu_y_original;
+	gameOver_selected = 0;
+	game_stage = state;
 }
