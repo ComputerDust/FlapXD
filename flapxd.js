@@ -3,11 +3,7 @@
 /*
  * TODO
  * 
- * - make the return to main menu button work
- * - make an options menu (change color of square and rectangles)
  * - different messages for when you die
- * - change credits to about
- * - reorder stuff on home page of website
  * 
  */
 
