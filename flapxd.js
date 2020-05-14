@@ -7,7 +7,7 @@
  * 
  */
 
-const version = "0.12";
+const version = "0.13";
 var debug = false;
 
 var canvas = document.getElementById("canvasMain");
@@ -22,9 +22,9 @@ var game_stage = 0;
 var game_stage_trigger = false;
 var game_score = 0;
 var game_highScore = localStorage.getItem("interestingNumber");
-var game_color_square_id = parseInt(localStorage.getItem("colorSquare"));
+var game_color_square_id = localStorage.getItem("colorSquare");
 var game_color_square = "rgb(255, 0, 0)";
-var game_color_wall_id = parseInt(localStorage.getItem("colorWall"));
+var game_color_wall_id = localStorage.getItem("colorWall");
 var game_color_wall = "rgb(0, 255, 0)";
 var game_keys = true;
 var game_oneTime = false;
@@ -95,6 +95,7 @@ function reload(){
 			game_color_square_id = 0;
 			localStorage.setItem("colorSquare", 0);
 		}else{
+			game_color_square_id = parseInt(game_color_square_id);
 			game_color_square = colorGet(game_color_square_id);
 		}
 		
@@ -102,6 +103,7 @@ function reload(){
 			game_color_wall_id = 3;
 			localStorage.setItem("colorWall", 3);
 		}else{
+			game_color_wall_id = parseInt(game_color_wall_id);
 			game_color_wall = colorGet(game_color_wall_id);
 		}
 		game_oneTime = true;
