@@ -11,7 +11,7 @@
  * 
  */
 
-const version = "0.10";
+const version = "0.11";
 var debug = false;
 
 var canvas = document.getElementById("canvasMain");
@@ -59,7 +59,7 @@ const square_vjump_increment = -0.2;
 var gravity = 0.2;
 var gravity_max = 10;
 const gravity_base = 0.2;
-const gravity_increment = 0.03
+const gravity_increment = 0.03;
 
 var walls = [];
 var wall_dimx = 72;
