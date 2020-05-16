@@ -4,10 +4,11 @@
  * TODO
  * 
  * - different messages for when you die
+ * - add music
  * 
  */
 
-const version = "0.15";
+const version = "0.16";
 var debug = false;
 
 var canvas = document.getElementById("canvasMain");
@@ -20,6 +21,7 @@ document.addEventListener("keyup", keyReleaseEvent, false);
 //0 - start, 1 - playing, 2 - game over, 3 - options, 4 - credits
 var game_stage = 0;
 var game_stage_trigger = false;
+var game_playerCount = 1;
 var game_score = 0;
 var game_highScore = localStorage.getItem("highScore");
 var game_color_square_id = localStorage.getItem("colorSquare");
@@ -407,10 +409,11 @@ function renderOutline(){
 
 	if (debug){
 		ctx.fillText("debug:"
-				+ " wall_vx: " + wall_vx
-				+ " wall_sI: " + wall_spawningInterval
-				+ " gravity: " + gravity
-				+ " square_vj: " + square_vjump
+				+ " w_vx: " + wall_vx
+				+ " w_sI: " + wall_spawningInterval
+				+ " g: " + gravity
+				+ " s_vj: " + square_vjump
+				+ " ws_l: " + walls.length
 				, 10, canvas.height - 10);
 	}
 
