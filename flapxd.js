@@ -8,7 +8,7 @@
  * 
  */
 
-const version = "0.16";
+const version = "0.17";
 var debug = false;
 
 var canvas = document.getElementById("canvasMain");
@@ -411,9 +411,10 @@ function renderOutline(){
 		ctx.fillText("debug:"
 				+ " w_vx: " + wall_vx
 				+ " w_sI: " + wall_spawningInterval
+				+ " ws_l: " + walls.length
 				+ " g: " + gravity
 				+ " s_vj: " + square_vjump
-				+ " ws_l: " + walls.length
+				+ " s_vy: " + square_vy
 				, 10, canvas.height - 10);
 	}
 
