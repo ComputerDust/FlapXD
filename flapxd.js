@@ -8,7 +8,7 @@
  * 
  */
 
-const version = "0.18";
+const version = "0.19";
 var debug = false;
 
 var canvas = document.getElementById("canvasMain");
