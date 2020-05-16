@@ -8,7 +8,7 @@
  * 
  */
 
-const version = "0.17";
+const version = "0.18";
 var debug = false;
 
 var canvas = document.getElementById("canvasMain");
@@ -132,7 +132,7 @@ setInterval(reload, 10);
 
 function tick(){
 
-	square_vy += gravity;
+	if (game_stage == 1) square_vy += gravity;
 	if (square_vy >= gravity_max){
 		square_vy = gravity_max;
 	}
@@ -414,7 +414,6 @@ function renderOutline(){
 				+ " ws_l: " + walls.length
 				+ " g: " + gravity
 				+ " s_vj: " + square_vjump
-				+ " s_vy: " + square_vy
 				, 10, canvas.height - 10);
 	}
 
