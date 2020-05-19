@@ -8,7 +8,7 @@
  * 
  */
 
-const version = "0.20";
+const version = "0.21";
 var debug = false;
 
 var canvas = document.getElementById("canvasMain");
@@ -308,16 +308,16 @@ function renderTitleScreen(){
 	if (game_playerCount > 1){
 		ctx.fillText("[space] enter", title_x - 25, 375);
 		ctx.fillStyle = colorGet(4);
-		ctx.fillText("letter Q - jump", title_x - 25, 400);
+		ctx.fillText("[1] jump", title_x - 25, 400);
 		ctx.fillStyle = colorGet(0);
-		ctx.fillText("close bracket ] - jump", title_x - 25, 425);
+		ctx.fillText("[=] jump", title_x - 25, 425);
 		if (game_playerCount > 2){
 			ctx.fillStyle = colorGet(3);
-			ctx.fillText("letter V - jump", title_x - 25, 450);
+			ctx.fillText("[V] jump", title_x - 25, 450);
 		}
 		if (game_playerCount > 3){
 			ctx.fillStyle = colorGet(2);
-			ctx.fillText("comma , - jump", title_x - 25, 475);
+			ctx.fillText("[,] jump", title_x - 25, 475);
 		}
 	}else{
 		ctx.fillText("[space] jump/enter", title_x - 25, 375);
@@ -847,8 +847,8 @@ function keyPressEvent(e){
 		else if (game_stage == 1){
 			//q ] v ,
 			if (game_playerCount > 1){
-				if (e.key == "q") square_vy = square_vjump;
-				if (e.key == "]") square2_vy = square_vjump;
+				if (e.key == "1") square_vy = square_vjump;
+				if (e.key == "=") square2_vy = square_vjump;
 				if (e.key == "v") square3_vy = square_vjump;
 				if (e.key == ",") square4_vy = square_vjump;
 			}
