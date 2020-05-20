@@ -5,11 +5,10 @@
  * 
  * - different messages for when you die
  * - add music
- * - stats (how many games played)
  * 
  */
 
-const version = "0.22";
+const version = "0.23";
 var debug = false;
 
 var canvas = document.getElementById("canvasMain");
@@ -32,6 +31,8 @@ var game_highScore = localStorage.getItem("highScore");
 var game_gameCount = localStorage.getItem("gameCount");
 var game_jumpCount = localStorage.getItem("jumpCount");
 var game_multiJumpCount = localStorage.getItem("multiJumpCount");
+var game_scoreTracker_enabled = false;
+var game_scoreTracker = [0, 0, 0, 0];
 var game_color_square_id = localStorage.getItem("colorSquare");
 var game_color_square = "rgb(255, 0, 0)";
 var game_color_square_1 = "";
@@ -41,6 +42,7 @@ var game_color_square_4 = "";
 var game_color_wall_id = localStorage.getItem("colorWall");
 var game_color_wall = "rgb(0, 255, 0)";
 var game_keys = true;
+var game_keysPressed = [];
 var game_oneTime = false;
 
 const title_x_original = canvas.width - 25;
@@ -176,8 +178,8 @@ function reload(){
 
 	if (title_x > -5) renderTitleScreen();
 
-	renderSquare();
 	renderScore();
+	renderSquare();
 	renderTickWalls();
 	if (game_stage == 2) renderGameOverScreen();
 
@@ -632,11 +634,33 @@ function renderOutline(){
 	ctx.rect(0, 0, canvas.width, canvas.height);
 	ctx.strokeStyle = "white";
 	ctx.stroke();
-	ctx.fillStyle = "gray";
 	ctx.font = "15px Arial";
 	ctx.textAlign = "left";
-	ctx.fillText("FlapXD! version " + version, 10, 20);
+	
+	let bonusText = "";
+	
+	if (game_stage == 0 && game_playerCount > 1){
+		bonusText += "Toggle score tracker: [S] | ";
+		
+	}
+	if (game_scoreTracker_enabled){
+		bonusText += "ST control: [T]+[1-4]+[Up/Down] | ";
+		ctx.fillStyle = colorGet(4);
+		ctx.fillText("" + game_scoreTracker[0], 10, 40);
+		ctx.fillStyle = colorGet(0);
+		ctx.fillText("" + game_scoreTracker[1], 10, 60);
+		ctx.fillStyle = colorGet(3);
+		ctx.fillText("" + game_scoreTracker[2], 10, 80);
+		ctx.fillStyle = colorGet(2);
+		ctx.fillText("" + game_scoreTracker[3], 10, 100);
+	}
+	ctx.font = "12px Arial";
+	ctx.fillStyle = "gray";
+	ctx.fillText("| FlapXD! version " + version + " | " + bonusText, 10, 20);
 
+	
+	
+	
 	if (debug){
 		ctx.fillText("debug:"
 				+ " w_vx: " + wall_vx
@@ -840,6 +864,8 @@ function intersectEvent(x1, y1, w1, h1, x2, y2, w2, h2){
 
 function keyPressEvent(e){
 
+	if (!game_keysPressed.includes(e.key)) game_keysPressed[game_keysPressed.length] = e.key;
+		
 	if (game_keys){
 		if (game_stage == 0){
 			if (e.key == "Down" || e.key == "ArrowDown"){
@@ -852,6 +878,47 @@ function keyPressEvent(e){
 				if (title_selected > 0){
 					title_selected--;
 					if (title_selected == 1 && game_playerCount > 1) title_selected--;
+				}
+			}
+			
+			
+			if (game_keysPressed.includes("t") && game_scoreTracker_enabled){
+				if (game_keysPressed.includes("1")){
+					if (game_keysPressed.includes("Up") || game_keysPressed.includes("ArrowUp")){
+						game_scoreTracker[0]++;
+					}else if (game_keysPressed.includes("Down") || game_keysPressed.includes("ArrowDown")){
+						game_scoreTracker[0]--;
+					}
+				}
+				if (game_keysPressed.includes("2")){
+					if (game_keysPressed.includes("Up") || game_keysPressed.includes("ArrowUp")){
+						game_scoreTracker[1]++;
+					}else if (game_keysPressed.includes("Down") || game_keysPressed.includes("ArrowDown")){
+						game_scoreTracker[1]--;
+					}
+				}
+				if (game_keysPressed.includes("3")){
+					if (game_keysPressed.includes("Up") || game_keysPressed.includes("ArrowUp")){
+						game_scoreTracker[2]++;
+					}else if (game_keysPressed.includes("Down") || game_keysPressed.includes("ArrowDown")){
+						game_scoreTracker[2]--;
+					}
+				}
+				if (game_keysPressed.includes("4")){
+					if (game_keysPressed.includes("Up") || game_keysPressed.includes("ArrowUp")){
+						game_scoreTracker[3]++;
+					}else if (game_keysPressed.includes("Down") || game_keysPressed.includes("ArrowDown")){
+						game_scoreTracker[3]--;
+					}
+				}
+			}
+			
+			if (e.key == "s" && game_playerCount > 1){
+				if (game_scoreTracker_enabled){
+					game_scoreTracker_enabled = false;
+				}else{
+					game_scoreTracker = [0, 0, 0, 0];
+					game_scoreTracker_enabled = true;
 				}
 			}
 
@@ -876,6 +943,9 @@ function keyPressEvent(e){
 					}else if (game_playerCount == 4){
 						game_playerCount = 1;
 						title_players_color = "rgba(0, 125, 255, 0.75)";
+						if (game_scoreTracker_enabled){
+							game_scoreTracker_enabled = false;
+						}
 					}
 					if (game_playerCount > 1) game_color_wall = colorGet(8);
 					else game_color_wall = colorGet(game_color_wall_id);
@@ -993,6 +1063,7 @@ function keyPressEvent(e){
 }
 
 function keyReleaseEvent(e){
+	if (game_keysPressed.includes(e.key)) game_keysPressed.splice(game_keysPressed.indexOf(e.key), 1);
 
 }
 
