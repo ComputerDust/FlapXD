@@ -8,7 +8,7 @@
  * 
  */
 
-const version = "0.23";
+const version = "0.24";
 var debug = false;
 
 var canvas = document.getElementById("canvasMain");
@@ -640,11 +640,11 @@ function renderOutline(){
 	let bonusText = "";
 	
 	if (game_stage == 0 && game_playerCount > 1){
-		bonusText += "Toggle score tracker: [S] | ";
+		bonusText += "| Score tracker: Toggle [S] ";
 		
 	}
 	if (game_scoreTracker_enabled){
-		bonusText += "ST control: [T]+[1-4]+[Up/Down] | ";
+		bonusText += "Control [T]+[1-4]+[Up/Down] ";
 		ctx.fillStyle = colorGet(4);
 		ctx.fillText("" + game_scoreTracker[0], 10, 40);
 		ctx.fillStyle = colorGet(0);
@@ -656,7 +656,7 @@ function renderOutline(){
 	}
 	ctx.font = "12px Arial";
 	ctx.fillStyle = "gray";
-	ctx.fillText("| FlapXD! version " + version + " | " + bonusText, 10, 20);
+	ctx.fillText("FlapXD! version " + version + " " + bonusText, 10, 20);
 
 	
 	
