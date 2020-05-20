@@ -5,10 +5,11 @@
  * 
  * - different messages for when you die
  * - add music
+ * - stats (how many games played)
  * 
  */
 
-const version = "0.21";
+const version = "0.22";
 var debug = false;
 
 var canvas = document.getElementById("canvasMain");
@@ -28,6 +29,9 @@ var game_score2 = 0;
 var game_score3 = 0;
 var game_score4 = 0;
 var game_highScore = localStorage.getItem("highScore");
+var game_gameCount = localStorage.getItem("gameCount");
+var game_jumpCount = localStorage.getItem("jumpCount");
+var game_multiJumpCount = localStorage.getItem("multiJumpCount");
 var game_color_square_id = localStorage.getItem("colorSquare");
 var game_color_square = "rgb(255, 0, 0)";
 var game_color_square_1 = "";
@@ -119,7 +123,28 @@ function reload(){
 		if (game_highScore == null){
 			game_highScore = 0;
 			localStorage.setItem("highScore", 0);
+		}else{
+			game_highScore = parseInt(game_highScore);
 		}
+		if (game_gameCount == null){
+			game_gameCount = 0;
+			localStorage.setItem("gameCount", 0);
+		}else{
+			game_gameCount = parseInt(game_gameCount);
+		}
+		if (game_jumpCount == null){
+			game_jumpCount = 0;
+			localStorage.setItem("jumpCount", 0);
+		}else{
+			game_jumpCount = parseInt(game_jumpCount);
+		}
+		if (game_multiJumpCount == null){
+			game_multiJumpCount = 0;
+			localStorage.setItem("multiJumpCount", 0);
+		}else{
+			game_multiJumpCount = parseInt(game_multiJumpCount);
+		}
+		
 		if (game_color_square_id == null){
 			game_color_square_id = 0;
 			localStorage.setItem("colorSquare", 0);
@@ -400,12 +425,12 @@ function renderTitleScreen(){
 
 		ctx.fillStyle = "rgb(0, 255, 0)";
 		ctx.font = "90px Impact";
-		ctx.fillText("Colors", title_x + 500, 150);
+		ctx.fillText("Colors", title_x + 500, 100);
 		ctx.font = "20px Arial";
 		ctx.textAlign = "center";
 		ctx.fillStyle = "rgb(255, 255, 255)";
-		ctx.fillText("square", title_x + 480, 200);
-		ctx.fillText("walls", title_x + 480, 200 + title_color_spacing);
+		ctx.fillText("square", title_x + 480, 150);
+		ctx.fillText("walls", title_x + 480, 150 + title_color_spacing);
 		ctx.textAlign = "right";
 
 		rts_colorSelected();
@@ -415,39 +440,39 @@ function renderTitleScreen(){
 
 		for (i = 0; i < 2; i++){
 			ctx.fillStyle = colorGet(0);
-			ctx.fillRect(title_x + 100, 215 + (title_color_spacing*i), 32, 32);
+			ctx.fillRect(title_x + 100, 165 + (title_color_spacing*i), 32, 32);
 
 			ctx.fillStyle = colorGet(1);
-			ctx.fillRect(title_x + 148, 215 + (title_color_spacing*i), 32, 32);
+			ctx.fillRect(title_x + 148, 165 + (title_color_spacing*i), 32, 32);
 
 			ctx.fillStyle = colorGet(2);
-			ctx.fillRect(title_x + 196, 215 + (title_color_spacing*i), 32, 32);
+			ctx.fillRect(title_x + 196, 165 + (title_color_spacing*i), 32, 32);
 
 			ctx.fillStyle = colorGet(3);
-			ctx.fillRect(title_x + 244, 215 + (title_color_spacing*i), 32, 32);
+			ctx.fillRect(title_x + 244, 165 + (title_color_spacing*i), 32, 32);
 
 			ctx.fillStyle = colorGet(4);
-			ctx.fillRect(title_x + 292, 215 + (title_color_spacing*i), 32, 32);
+			ctx.fillRect(title_x + 292, 165 + (title_color_spacing*i), 32, 32);
 
 			ctx.fillStyle = colorGet(5);
-			ctx.fillRect(title_x + 340, 215 + (title_color_spacing*i), 32, 32);
+			ctx.fillRect(title_x + 340, 165 + (title_color_spacing*i), 32, 32);
 
 			ctx.fillStyle = colorGet(6);
-			ctx.fillRect(title_x + 388, 215 + (title_color_spacing*i), 32, 32);
+			ctx.fillRect(title_x + 388, 165 + (title_color_spacing*i), 32, 32);
 
 			ctx.fillStyle = colorGet(7);
-			ctx.fillRect(title_x + 436, 215 + (title_color_spacing*i), 32, 32);
+			ctx.fillRect(title_x + 436, 165 + (title_color_spacing*i), 32, 32);
 
 			ctx.fillStyle = colorGet(8);
-			ctx.fillRect(title_x + 484, 215 + (title_color_spacing*i), 32, 32);
+			ctx.fillRect(title_x + 484, 165 + (title_color_spacing*i), 32, 32);
 		}
 		rts_color_colorSet(2);
 		ctx.font = "35px Arial";
-		ctx.fillText("Back", title_x + 484, 400);
+		ctx.fillText("Back", title_x + 484, 350);
 
 		rts_color_colorSet(3);
 		ctx.font = "20px Arial";
-		ctx.fillText("Reset to default", title_x + 484, 450);
+		ctx.fillText("Reset to default", title_x + 484, 400);
 
 		if ((title_x > title_x_original - 500) && !game_stage_trigger){
 			title_x += title_internal_vx;
@@ -468,18 +493,34 @@ function renderTitleScreen(){
 
 		ctx.fillStyle = "rgb(0, 255, 0)";
 		ctx.font = "90px Impact";
-		ctx.fillText("About", title_x + 325, 150);
-		ctx.font = "20px Arial";
+		ctx.fillText("About", title_x + 325, 100);
+		
+		ctx.font = "24px Arial";
+		
+
+		
+		ctx.fillStyle = "rgb(255, 0, 100)";
+
+		ctx.fillText("" + game_gameCount, title_x + 350, 150);
+		ctx.fillText("" + game_jumpCount, title_x + 350, 200);
+		ctx.fillText("" + game_multiJumpCount, title_x + 350, 225);
+		
 		rts_colorSet(0, title_selected, true);
-		ctx.fillText("FlapXD!!!!!!!!!!!!!!!!!!!", title_x + 300, 200)
-		ctx.fillText("version " + version, title_x + 300, 225);
-		ctx.fillText("created by Dilan :)", title_x + 300, 250);
-		ctx.fillText("blockhead7360.com/flapxd", title_x + 300, 275);
+		
+		ctx.fillText("Games played: ", title_x + 260, 150);
+		ctx.fillText("Times jumped (sp): ", title_x + 260, 200);
+		ctx.fillText("Times jumped (mp): ", title_x + 260, 225);
+		
+		ctx.font = "20px Arial";
+		ctx.fillText("FlapXD!!!!!!!!!!!!!!!!!!!", title_x + 300, 300)
+		ctx.fillText("version " + version, title_x + 300, 325);
+		ctx.fillText("created by Dilan :)", title_x + 300, 350);
+		ctx.fillText("blockhead7360.com/flapxd", title_x + 300, 375);
 
 
 		rts_colorSet(1, title_selected, true);
 		ctx.font = "35px Arial";
-		ctx.fillText("Back", title_x + 300, 325);
+		ctx.fillText("Back", title_x + 300, 425);
 		if ((title_x > title_x_original - 325) && !game_stage_trigger){
 			title_x += title_internal_vx;
 		}
@@ -499,15 +540,15 @@ function renderTitleScreen(){
 
 function rts_colorSelected(){
 	ctx.strokeStyle = "rgb(255, 255, 255)";
-	ctx.strokeRect(title_x + 92 + (48 * game_color_square_id), 207, 48, 48);
-	ctx.strokeRect(title_x + 92 + (48 * game_color_wall_id), 207 + title_color_spacing, 48, 48);
+	ctx.strokeRect(title_x + 92 + (48 * game_color_square_id), 157, 48, 48);
+	ctx.strokeRect(title_x + 92 + (48 * game_color_wall_id), 157 + title_color_spacing, 48, 48);
 }
 
 function rts_colorSelecting(){
 	if (title_color_vselected < 2){
 		ctx.strokeStyle = "rgb(255, 255, 0)";
 
-		ctx.strokeRect(title_x + 92 + (48 * title_color_hselected), 207 + (title_color_spacing * title_color_vselected), 48, 48);
+		ctx.strokeRect(title_x + 92 + (48 * title_color_hselected), 157 + (title_color_spacing * title_color_vselected), 48, 48);
 
 	}
 
@@ -601,8 +642,11 @@ function renderOutline(){
 				+ " w_vx: " + wall_vx
 				+ " w_sI: " + wall_spawningInterval
 				+ " ws_l: " + walls.length
-				+ " g: " + gravity
+				+ " gr: " + gravity
 				+ " s_vj: " + square_vjump
+				+ " g_gC: " + game_gameCount
+				+ " g_jC: " + game_jumpCount
+				+ " g_mJC: " + game_multiJumpCount
 				, 10, canvas.height - 10);
 	}
 
@@ -847,13 +891,28 @@ function keyPressEvent(e){
 		else if (game_stage == 1){
 			//q ] v ,
 			if (game_playerCount > 1){
-				if (e.key == "1") square_vy = square_vjump;
-				if (e.key == "=") square2_vy = square_vjump;
-				if (e.key == "v") square3_vy = square_vjump;
-				if (e.key == ",") square4_vy = square_vjump;
+				if (e.key == "1"){
+					square_vy = square_vjump;
+					game_multiJumpCount++;
+				}
+				if (e.key == "="){
+					square2_vy = square_vjump;
+					game_multiJumpCount++;
+				}
+				if (e.key == "v"){
+					square3_vy = square_vjump;
+					game_multiJumpCount++;
+				}
+				if (e.key == ","){
+					square4_vy = square_vjump;
+					game_multiJumpCount++;
+				}
 			}
 			else{
-				if (e.key == " ") square_vy = square_vjump;
+				if (e.key == " "){
+					square_vy = square_vjump;
+					game_jumpCount++;
+				}
 			}
 		}
 		else if (game_stage == 2){
@@ -939,6 +998,12 @@ function keyReleaseEvent(e){
 
 function setHighScore(){
 
+	game_gameCount++;
+	localStorage.setItem("gameCount", game_gameCount);
+	
+	localStorage.setItem("jumpCount", game_jumpCount);
+	localStorage.setItem("multiJumpCount", game_multiJumpCount);
+	
 	if (game_playerCount == 1){
 		if (game_score > game_highScore){
 			game_highScore = game_score;
