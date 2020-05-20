@@ -8,7 +8,7 @@
  * 
  */
 
-const version = "0.24";
+const version = "0.25";
 var debug = false;
 
 var canvas = document.getElementById("canvasMain");
@@ -640,11 +640,11 @@ function renderOutline(){
 	let bonusText = "";
 	
 	if (game_stage == 0 && game_playerCount > 1){
-		bonusText += "| Score tracker: Toggle [S] ";
+		bonusText += "| Score tracker toggle: [S] ";
 		
 	}
 	if (game_scoreTracker_enabled){
-		bonusText += "Control [T]+[1-4]+[Up/Down] ";
+		bonusText += "| Score tracker control: [T]+[1-4]+[Up/Down] ";
 		ctx.fillStyle = colorGet(4);
 		ctx.fillText("" + game_scoreTracker[0], 10, 40);
 		ctx.fillStyle = colorGet(0);
@@ -867,6 +867,7 @@ function keyPressEvent(e){
 	if (!game_keysPressed.includes(e.key)) game_keysPressed[game_keysPressed.length] = e.key;
 		
 	if (game_keys){
+		
 		if (game_stage == 0){
 			if (e.key == "Down" || e.key == "ArrowDown"){
 				if (title_selected < title_selected_max){
@@ -882,36 +883,7 @@ function keyPressEvent(e){
 			}
 			
 			
-			if (game_keysPressed.includes("t") && game_scoreTracker_enabled){
-				if (game_keysPressed.includes("1")){
-					if (game_keysPressed.includes("Up") || game_keysPressed.includes("ArrowUp")){
-						game_scoreTracker[0]++;
-					}else if (game_keysPressed.includes("Down") || game_keysPressed.includes("ArrowDown")){
-						game_scoreTracker[0]--;
-					}
-				}
-				if (game_keysPressed.includes("2")){
-					if (game_keysPressed.includes("Up") || game_keysPressed.includes("ArrowUp")){
-						game_scoreTracker[1]++;
-					}else if (game_keysPressed.includes("Down") || game_keysPressed.includes("ArrowDown")){
-						game_scoreTracker[1]--;
-					}
-				}
-				if (game_keysPressed.includes("3")){
-					if (game_keysPressed.includes("Up") || game_keysPressed.includes("ArrowUp")){
-						game_scoreTracker[2]++;
-					}else if (game_keysPressed.includes("Down") || game_keysPressed.includes("ArrowDown")){
-						game_scoreTracker[2]--;
-					}
-				}
-				if (game_keysPressed.includes("4")){
-					if (game_keysPressed.includes("Up") || game_keysPressed.includes("ArrowUp")){
-						game_scoreTracker[3]++;
-					}else if (game_keysPressed.includes("Down") || game_keysPressed.includes("ArrowDown")){
-						game_scoreTracker[3]--;
-					}
-				}
-			}
+			
 			
 			if (e.key == "s" && game_playerCount > 1){
 				if (game_scoreTracker_enabled){
@@ -1059,6 +1031,39 @@ function keyPressEvent(e){
 		else if (game_stage == 4){
 			if (e.key == " ") game_stage_trigger = true;
 		}
+		
+		if (game_keysPressed.includes("t") && game_scoreTracker_enabled){
+			if (game_keysPressed.includes("1")){
+				if (game_keysPressed.includes("Up") || game_keysPressed.includes("ArrowUp")){
+					game_scoreTracker[0]++;
+				}else if (game_keysPressed.includes("Down") || game_keysPressed.includes("ArrowDown")){
+					game_scoreTracker[0]--;
+				}
+			}
+			if (game_keysPressed.includes("2")){
+				if (game_keysPressed.includes("Up") || game_keysPressed.includes("ArrowUp")){
+					game_scoreTracker[1]++;
+				}else if (game_keysPressed.includes("Down") || game_keysPressed.includes("ArrowDown")){
+					game_scoreTracker[1]--;
+				}
+			}
+			if (game_keysPressed.includes("3")){
+				if (game_keysPressed.includes("Up") || game_keysPressed.includes("ArrowUp")){
+					game_scoreTracker[2]++;
+				}else if (game_keysPressed.includes("Down") || game_keysPressed.includes("ArrowDown")){
+					game_scoreTracker[2]--;
+				}
+			}
+			if (game_keysPressed.includes("4")){
+				if (game_keysPressed.includes("Up") || game_keysPressed.includes("ArrowUp")){
+					game_scoreTracker[3]++;
+				}else if (game_keysPressed.includes("Down") || game_keysPressed.includes("ArrowDown")){
+					game_scoreTracker[3]--;
+				}
+			}
+		}
+		
+		
 	}
 }
 
