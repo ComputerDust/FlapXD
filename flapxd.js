@@ -8,7 +8,7 @@
  * 
  */
 
-const version = "0.27";
+const version = "0.28";
 var debug = false;
 
 var canvas = document.getElementById("canvasMain");
@@ -44,6 +44,12 @@ var game_color_wall = "rgb(0, 255, 0)";
 var game_keys = true;
 var game_keysPressed = [];
 var game_oneTime = false;
+var game_lastRun_jumps = [];
+var game_lastRun_jumps_index = 0;
+var game_lastRun_walls = [];
+var game_lastRun_walls_index = 0;
+var game_lastRun_watching = false;
+var game_tick = 0;
 
 const title_x_original = canvas.width - 25;
 var title_x = title_x_original;
@@ -69,13 +75,14 @@ const gameOver_menu_y_original = canvas.height + 100;
 var gameOver_menu_y = gameOver_menu_y_original;
 const gameOver_internal_vy = 5;
 var gameOver_selected = 0;
-var gameOver_selected_max = 1;
+var gameOver_selected_max = 2;
 var gameOver_oneTime = false;
 
 var square_dim = 32;
 var square_x = 100;
 var square_y_original = canvas.height/2 - (square_dim/2);
 var square_y = square_y_original;
+var square_y_starting = square_y_original;
 var square2_x = 68;
 var square2_y_destination = canvas.height + 5;
 var square2_y = square2_y_destination;
@@ -146,7 +153,7 @@ function reload(){
 		}else{
 			game_multiJumpCount = parseInt(game_multiJumpCount);
 		}
-		
+
 		if (game_color_square_id == null){
 			game_color_square_id = 0;
 			localStorage.setItem("colorSquare", 0);
@@ -190,8 +197,21 @@ function reload(){
 setInterval(reload, 10);
 
 function tick(){
-	
+
 	if (game_stage == 1){
+
+		if (game_playerCount == 1){
+			game_tick++;
+
+			if (game_lastRun_watching){
+				if (game_lastRun_jumps[game_lastRun_jumps_index] == game_tick){
+					square_vy = square_vjump;
+					game_lastRun_jumps_index++;
+				}
+			}
+
+		}
+
 		if (game_playerCount > 1){
 			if (game_playerCount > 2){
 				if (game_playerCount > 3){
@@ -279,6 +299,14 @@ function tick(){
 	}
 	if (wall_currentSpawningInterval >= wall_spawningInterval){
 		let wy = Math.floor(Math.random() * (476 - 25 - wall_separation)) + 25 + wall_separation;
+
+		if (game_lastRun_watching){
+			wy = game_lastRun_walls[game_lastRun_walls_index];
+			game_lastRun_walls_index++;
+		}else{
+
+			if (game_playerCount == 1) game_lastRun_walls[game_lastRun_walls.length] = wy;
+		}
 
 		walls[walls.length] = {x: 750, y:-wy, top: true, score: false, score2: false, score3: false, score4: false};
 		walls[walls.length] = {x: 750, y:-wy + wall_dimy + wall_separation, top: false, score: false, score2: false, score3: false, score4: false};
@@ -494,23 +522,23 @@ function renderTitleScreen(){
 		ctx.fillStyle = "rgb(0, 255, 0)";
 		ctx.font = "90px Impact";
 		ctx.fillText("About", title_x + 325, 100);
-		
-		ctx.font = "24px Arial";
-		
 
-		
+		ctx.font = "24px Arial";
+
+
+
 		ctx.fillStyle = "rgb(255, 0, 100)";
 
 		ctx.fillText("" + game_gameCount, title_x + 350, 150);
 		ctx.fillText("" + game_jumpCount, title_x + 350, 200);
 		ctx.fillText("" + game_multiJumpCount, title_x + 350, 225);
-		
+
 		rts_colorSet(0, title_selected, true);
-		
+
 		ctx.fillText("Games played: ", title_x + 260, 150);
 		ctx.fillText("Times jumped (sp): ", title_x + 260, 200);
 		ctx.fillText("Times jumped (mp): ", title_x + 260, 225);
-		
+
 		ctx.font = "20px Arial";
 		ctx.fillText("FlapXD!!!!!!!!!!!!!!!!!!!", title_x + 300, 300)
 		ctx.fillText("version " + version, title_x + 300, 325);
@@ -587,6 +615,9 @@ function rts_colorSet(current, actual, selected){
 		else if (game_stage == 0 && game_playerCount > 1 && current == 1){
 			ctx.fillStyle = "gray";
 		}
+		else if (game_stage == 2 && game_playerCount > 1 && current == 1){
+			ctx.fillStyle = "gray";
+		}
 		else if (current == actual){
 			ctx.fillStyle = "rgb(255, 255, 0)";
 		}else{
@@ -604,8 +635,10 @@ function renderGameOverScreen(){
 
 	ctx.font = "24px Arial";
 	rts_colorSet(0, gameOver_selected, false);
-	ctx.fillText("Play again", canvas.width/2, gameOver_menu_y);
+	ctx.fillText("Play again", canvas.width/2, gameOver_menu_y - 50);
 	rts_colorSet(1, gameOver_selected, false);
+	ctx.fillText("Watch last run", canvas.width/2, gameOver_menu_y);
+	rts_colorSet(2, gameOver_selected, false);
 	ctx.fillText("Return to main menu", canvas.width/2, gameOver_menu_y + 50);
 
 	ctx.closePath();
@@ -620,8 +653,9 @@ function renderGameOverScreen(){
 		gameOver_y += gameOver_internal_vy;
 	}else{
 		if (gameOver_menu_y > canvas.height - 100){
-			game_keys = true;
 			gameOver_menu_y -= gameOver_internal_vy;
+		}else{
+			game_keys = true;
 		}
 	}
 
@@ -634,12 +668,12 @@ function renderOutline(){
 	ctx.stroke();
 	ctx.font = "15px Arial";
 	ctx.textAlign = "left";
-	
+
 	let bonusText = "";
-	
+
 	if (game_stage == 0 && game_playerCount > 1){
 		bonusText += "| Score tracker toggle: [S] ";
-		
+
 	}
 	if (game_scoreTracker_enabled){
 		bonusText += "| Score tracker control: [T]+[1-4]+[Up/Down] ";
@@ -652,11 +686,28 @@ function renderOutline(){
 		ctx.fillStyle = colorGet(2);
 		ctx.fillText("" + game_scoreTracker[3], 10, 100);
 	}
+
+	if (game_lastRun_watching){
+
+		ctx.fillStyle = "rgba(255, 155, 0, 0.5)";
+		ctx.fillRect(0, canvas.height - 30, 200, 30);
+
+		ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+		ctx.font = "20px Arial";
+		ctx.textAlign = "center";
+		ctx.fillText("Replay", 100, canvas.height - 8);
+		ctx.textAlign = "left";
+		
+		bonusText += "| Replay mode does not always work lol";
+		
+	}
+
 	ctx.font = "12px Arial";
 	ctx.fillStyle = "gray";
 	ctx.fillText("FlapXD! version " + version + " " + bonusText, 10, 20);	
-	
-	
+
+
+
 	if (debug){
 		ctx.fillText("debug:"
 				+ " w_vx: " + wall_vx
@@ -861,9 +912,9 @@ function intersectEvent(x1, y1, w1, h1, x2, y2, w2, h2){
 function keyPressEvent(e){
 
 	if (!game_keysPressed.includes(e.key)) game_keysPressed[game_keysPressed.length] = e.key;
-		
+
 	if (game_keys){
-		
+
 		if (game_stage == 0){
 			if (e.key == "Down" || e.key == "ArrowDown"){
 				if (title_selected < title_selected_max){
@@ -877,10 +928,10 @@ function keyPressEvent(e){
 					if (title_selected == 1 && game_playerCount > 1) title_selected--;
 				}
 			}
-			
-			
-			
-			
+
+
+
+
 			if (e.key == "s" && game_playerCount > 1){
 				if (game_scoreTracker_enabled){
 					game_scoreTracker_enabled = false;
@@ -892,6 +943,7 @@ function keyPressEvent(e){
 
 			if (e.key == " "){
 				if (title_selected == 0){
+					square_y_starting = square_y;
 					game_stage = 1;
 					square_vy = square_vjump;
 				}
@@ -948,8 +1000,12 @@ function keyPressEvent(e){
 			}
 			else{
 				if (e.key == " "){
+
+					if (game_lastRun_watching) return;
+
 					square_vy = square_vjump;
 					game_jumpCount++;
+					game_lastRun_jumps[game_lastRun_jumps.length] = game_tick;
 				}
 			}
 		}
@@ -957,11 +1013,13 @@ function keyPressEvent(e){
 			if (e.key == "Down" || e.key == "ArrowDown"){
 				if (gameOver_selected < gameOver_selected_max){
 					gameOver_selected++;
+					if (gameOver_selected == 1 && game_playerCount > 1) gameOver_selected++;
 				}
 			}
 			if (e.key == "Up" || e.key == "ArrowUp"){
 				if (gameOver_selected > 0){
 					gameOver_selected--;
+					if (gameOver_selected == 1 && game_playerCount > 1) gameOver_selected--;
 				}
 			}
 			if (e.key == " "){
@@ -969,6 +1027,9 @@ function keyPressEvent(e){
 					resetGame(1);				
 				}
 				if (gameOver_selected == 1){
+					resetGame(2);
+				}
+				if (gameOver_selected == 2){
 					resetGame(0);
 				}
 			}
@@ -1027,7 +1088,7 @@ function keyPressEvent(e){
 		else if (game_stage == 4){
 			if (e.key == " ") game_stage_trigger = true;
 		}
-		
+
 		if (game_keysPressed.includes("t") && game_scoreTracker_enabled){
 			if (game_keysPressed.includes("1")){
 				if (game_keysPressed.includes("Up") || game_keysPressed.includes("ArrowUp")){
@@ -1058,8 +1119,8 @@ function keyPressEvent(e){
 				}
 			}
 		}
-		
-		
+
+
 	}
 }
 
@@ -1070,12 +1131,14 @@ function keyReleaseEvent(e){
 
 function setHighScore(){
 
+	if (game_lastRun_watching) return;
+
 	game_gameCount++;
 	localStorage.setItem("gameCount", game_gameCount);
-	
+
 	localStorage.setItem("jumpCount", game_jumpCount);
 	localStorage.setItem("multiJumpCount", game_multiJumpCount);
-	
+
 	if (game_playerCount == 1){
 		if (game_score > game_highScore){
 			game_highScore = game_score;
@@ -1104,13 +1167,30 @@ function resetGame(state){
 	gameOver_menu_y = gameOver_menu_y_original;
 	gameOver_selected = 0;
 	gameOver_oneTime = false;
-	square_vy = square_vjump;
+	game_tick = 0;
+	game_lastRun_watching = false;
+	game_lastRun_jumps_index = 0;
+	game_lastRun_walls_index = 0;
 	if (state == 0){
 		title_x = title_x_original;
 		title_vx = 0;
 		title_players_y = title_players_y_original;
+		game_stage = 0;
+		game_lastRun_jumps = [];
+		game_lastRun_walls = [];
+	}else if (state == 1){
+		square_y_starting = square_y;
+		square_vy = square_vjump;
+		game_stage = 1;
+		game_lastRun_jumps = [];
+		game_lastRun_walls = [];
+	}else if (state == 2){
+		square_y = square_y_starting;
+		square_vy = square_vjump;
+		game_lastRun_watching = true;
+		gameOver_selected = 1;
+		game_stage = 1;
 	}
-	game_stage = state;
 }
 
 function colorGet(colorId){
