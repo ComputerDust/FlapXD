@@ -8,7 +8,7 @@
  * 
  */
 
-const version = "0.26";
+const version = "0.27";
 var debug = false;
 
 var canvas = document.getElementById("canvasMain");
@@ -768,22 +768,22 @@ function renderTickWalls(){
 			}
 		}
 
-		if (intersectEvent(square_x + intersect_padding, square_y + intersect_padding, square_dim - intersect_padding - (2*intersect_padding), square_dim - (2*intersect_padding), walls[i].x, walls[i].y, wall_dimx, wall_dimy)){
+		if (intersectEvent(square_x + intersect_padding, square_y + intersect_padding, square_dim - (2*intersect_padding), square_dim - (2*intersect_padding), walls[i].x, walls[i].y, wall_dimx, wall_dimy)){
 			if (game_playerCount == 1) game_stage = 2;
 			else{
 				square_playing = false;
 				game_color_square_1 = "rgba(0, 125, 255, 0.25)";
 			}
 		}
-		if (game_playerCount > 1 && intersectEvent(square2_x + intersect_padding, square2_y + intersect_padding, square_dim - intersect_padding - (2*intersect_padding), square_dim - (2*intersect_padding), walls[i].x, walls[i].y, wall_dimx, wall_dimy)){
+		if (game_playerCount > 1 && intersectEvent(square2_x + intersect_padding, square2_y + intersect_padding, square_dim - (2*intersect_padding), square_dim - (2*intersect_padding), walls[i].x, walls[i].y, wall_dimx, wall_dimy)){
 			square2_playing = false;
 			game_color_square_2 = "rgba(255, 0, 0, 0.25)";
 		}
-		if (game_playerCount > 2 && intersectEvent(square3_x + intersect_padding, square3_y + intersect_padding, square_dim - intersect_padding - (2*intersect_padding), square_dim - (2*intersect_padding), walls[i].x, walls[i].y, wall_dimx, wall_dimy)){
+		if (game_playerCount > 2 && intersectEvent(square3_x + intersect_padding, square3_y + intersect_padding, square_dim - (2*intersect_padding), square_dim - (2*intersect_padding), walls[i].x, walls[i].y, wall_dimx, wall_dimy)){
 			square3_playing = false;
 			game_color_square_3 = "rgba(0, 255, 0, 0.25)";
 		}
-		if (game_playerCount > 3 && intersectEvent(square4_x + intersect_padding, square4_y + intersect_padding, square_dim - intersect_padding - (2*intersect_padding), square_dim - (2*intersect_padding), walls[i].x, walls[i].y, wall_dimx, wall_dimy)){
+		if (game_playerCount > 3 && intersectEvent(square4_x + intersect_padding, square4_y + intersect_padding, square_dim - (2*intersect_padding), square_dim - (2*intersect_padding), walls[i].x, walls[i].y, wall_dimx, wall_dimy)){
 			square4_playing = false;
 			game_color_square_4 = "rgba(255, 255, 0, 0.25)";
 		}
