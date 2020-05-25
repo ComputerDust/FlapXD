@@ -8,7 +8,7 @@
  * 
  */
 
-const version = "0.34";
+const version = "0.35";
 var debug = false;
 
 var canvas = document.getElementById("canvasMain");
@@ -192,8 +192,6 @@ function reload(){
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 	tick();
-	console.log(game_lastRun_jumps);
-	console.log(game_lastRun_walls);
 
 	if (title_x > -5) renderTitleScreen();
 
