@@ -8,7 +8,7 @@
  * 
  */
 
-const version = "0.32";
+const version = "0.33";
 var debug = false;
 
 var canvas = document.getElementById("canvasMain");
@@ -49,6 +49,8 @@ var game_lastRun_jumps_index = 0;
 var game_lastRun_walls = [];
 var game_lastRun_walls_index = 0;
 var game_lastRun_watching = false;
+var game_replayMode_enabled_storage = localStorage.getItem("replayMode");
+var game_replayMode_enabled = true;
 var game_tick = 0;
 
 const title_x_original = canvas.width - 25;
@@ -169,6 +171,14 @@ function reload(){
 			game_color_wall_id = parseInt(game_color_wall_id);
 			game_color_wall = colorGet(game_color_wall_id);
 		}
+		
+		if (game_replayMode_enabled_storage == null){
+			game_replayMode_enabled = true;
+			localStorage.setItem("replayMode", "yes");
+		}else{
+			if (game_replayMode_enabled_storage == "yes") game_replayMode_enabled = true;
+			if (game_replayMode_enabled_storage == "no") game_replayMode_enabled = false;
+		}
 
 		game_color_square_1 = colorGet(4);
 		game_color_square_2 = colorGet(0);
@@ -182,6 +192,8 @@ function reload(){
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 	tick();
+	console.log(game_lastRun_jumps);
+	console.log(game_lastRun_walls);
 
 	if (title_x > -5) renderTitleScreen();
 
@@ -305,7 +317,7 @@ function tick(){
 			game_lastRun_walls_index++;
 		}else{
 
-			if (game_playerCount == 1) game_lastRun_walls[game_lastRun_walls.length] = wy;
+			if (game_playerCount == 1 && game_replayMode_enabled) game_lastRun_walls[game_lastRun_walls.length] = wy;
 		}
 
 		walls[walls.length] = {x: 750, y:-wy, top: true, score: false, score2: false, score3: false, score4: false};
@@ -374,6 +386,15 @@ function renderTitleScreen(){
 		}
 	}else{
 		ctx.fillText("[space] jump/enter", title_x - 25, 375);
+	}
+	
+	ctx.textAlign = "left";
+	if (game_replayMode_enabled){
+		ctx.fillStyle = "rgb(0, 255, 0)";
+		ctx.fillText("[U] Replay mode enabled", title_x - canvas.width + 35, 50);
+	}else{
+		ctx.fillStyle = "rgb(255, 0, 0)";
+		ctx.fillText("[U] Replay mode disabled", title_x - canvas.width + 35, 50);
 	}
 
 	ctx.fillStyle = title_players_color;
@@ -616,6 +637,9 @@ function rts_colorSet(current, actual, selected){
 			ctx.fillStyle = "gray";
 		}
 		else if (game_stage == 2 && game_playerCount > 1 && current == 1){
+			ctx.fillStyle = "gray";
+		}
+		else if (game_stage == 2 && !game_replayMode_enabled && current == 1){
 			ctx.fillStyle = "gray";
 		}
 		else if (current == actual){
@@ -930,14 +954,22 @@ function keyPressEvent(e){
 			}
 
 
-
-
 			if (e.key == "s" && game_playerCount > 1){
 				if (game_scoreTracker_enabled){
 					game_scoreTracker_enabled = false;
 				}else{
 					game_scoreTracker = [0, 0, 0, 0];
 					game_scoreTracker_enabled = true;
+				}
+			}
+			
+			if (e.key == "u"){
+				if (game_replayMode_enabled){
+					game_replayMode_enabled = false;
+					localStorage.setItem("replayMode", "no");
+				}else{
+					game_replayMode_enabled = true;
+					localStorage.setItem("replayMode", "yes");
 				}
 			}
 
@@ -1005,7 +1037,7 @@ function keyPressEvent(e){
 
 					square_vy = square_vjump;
 					game_jumpCount++;
-					game_lastRun_jumps[game_lastRun_jumps.length] = game_tick;
+					if (game_replayMode_enabled) game_lastRun_jumps[game_lastRun_jumps.length] = game_tick;
 				}
 			}
 		}
@@ -1014,12 +1046,14 @@ function keyPressEvent(e){
 				if (gameOver_selected < gameOver_selected_max){
 					gameOver_selected++;
 					if (gameOver_selected == 1 && game_playerCount > 1) gameOver_selected++;
+					else if (gameOver_selected == 1 && !game_replayMode_enabled) gameOver_selected++;
 				}
 			}
 			if (e.key == "Up" || e.key == "ArrowUp"){
 				if (gameOver_selected > 0){
 					gameOver_selected--;
 					if (gameOver_selected == 1 && game_playerCount > 1) gameOver_selected--;
+					else if (gameOver_selected == 1 && !game_replayMode_enabled) gameOver_selected--;
 				}
 			}
 			if (e.key == " "){
