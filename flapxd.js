@@ -8,7 +8,7 @@
  * 
  */
 
-const version = "0.31";
+const version = "0.32";
 var debug = false;
 
 var canvas = document.getElementById("canvasMain");
@@ -695,10 +695,10 @@ function renderOutline(){
 		ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
 		ctx.font = "20px Arial";
 		ctx.textAlign = "center";
-		ctx.fillText("Replay", 100, canvas.height - 8);
+		ctx.fillText("Replay (BETA)", 100, canvas.height - 8);
 		ctx.textAlign = "left";
 		
-		bonusText += "| * Replay mode does not always work lol *";
+		bonusText += "| * Replay mode is really glitchy at the moment *";
 		
 	}
 
