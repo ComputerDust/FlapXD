@@ -8,7 +8,7 @@
  * 
  */
 
-const version = "0.30";
+const version = "0.31";
 var debug = false;
 
 var canvas = document.getElementById("canvasMain");
@@ -698,7 +698,7 @@ function renderOutline(){
 		ctx.fillText("Replay", 100, canvas.height - 8);
 		ctx.textAlign = "left";
 		
-		bonusText += "| Replay mode does not always work lol";
+		bonusText += "| * Replay mode does not always work lol *";
 		
 	}
 
