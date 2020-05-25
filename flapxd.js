@@ -8,7 +8,7 @@
  * 
  */
 
-const version = "0.33";
+const version = "0.34";
 var debug = false;
 
 var canvas = document.getElementById("canvasMain");
@@ -1251,7 +1251,6 @@ function colorGet(colorId){
 	return color;
 
 }
-
 
 function debugFunction(){
 	debug = true;
