@@ -8,7 +8,7 @@
  * 
  */
 
-const version = "0.35";
+const version = "0.36";
 var debug = false;
 
 var canvas = document.getElementById("canvasMain");
@@ -70,6 +70,7 @@ const title_players_y_original = canvas.height - 30;
 var title_players_y = title_players_y_original;
 const title_players_vy = 2;
 var title_players_color = "rgba(0, 125, 255, 0.5)";
+var title_options = false;
 
 const gameOver_y_original = -50;
 var gameOver_y = gameOver_y_original;
@@ -171,7 +172,7 @@ function reload(){
 			game_color_wall_id = parseInt(game_color_wall_id);
 			game_color_wall = colorGet(game_color_wall_id);
 		}
-		
+
 		if (game_replayMode_enabled_storage == null){
 			game_replayMode_enabled = true;
 			localStorage.setItem("replayMode", "yes");
@@ -367,9 +368,11 @@ function renderTitleScreen(){
 
 	ctx.font = "15px Arial";
 	rts_colorSet(-1, title_selected, false);
-	ctx.fillText("[arrows] select", title_x - 25, 350);
+	ctx.fillText("[arrows] select", title_x - 25, 325);
+	if (title_options) ctx.fillText("[O] hide options", title_x - 25, 375);
+	else ctx.fillText("[O] show options", title_x - 25, 375);
 	if (game_playerCount > 1){
-		ctx.fillText("[space] enter", title_x - 25, 375);
+		ctx.fillText("[space] enter", title_x - 25, 350);
 		ctx.fillStyle = colorGet(4);
 		ctx.fillText("[1] jump", title_x - 25, 400);
 		ctx.fillStyle = colorGet(0);
@@ -383,16 +386,21 @@ function renderTitleScreen(){
 			ctx.fillText("[,] jump", title_x - 25, 475);
 		}
 	}else{
-		ctx.fillText("[space] jump/enter", title_x - 25, 375);
+		ctx.fillText("[space] jump/enter", title_x - 25, 350);
 	}
-	
+
 	ctx.textAlign = "left";
-	if (game_replayMode_enabled){
-		ctx.fillStyle = "rgb(0, 255, 0)";
-		ctx.fillText("[U] Replay mode enabled", title_x - canvas.width + 35, 50);
-	}else{
-		ctx.fillStyle = "rgb(255, 0, 0)";
-		ctx.fillText("[U] Replay mode disabled", title_x - canvas.width + 35, 50);
+
+	if (title_options){
+
+		if (game_replayMode_enabled){
+			ctx.fillStyle = "rgb(0, 255, 0)";
+			ctx.fillText("[1] Replay mode enabled", title_x - canvas.width + 55, 50);
+		}else{
+			ctx.fillStyle = "rgb(255, 0, 0)";
+			ctx.fillText("[1] Replay mode disabled", title_x - canvas.width + 55, 50);
+		}
+
 	}
 
 	ctx.fillStyle = title_players_color;
@@ -719,9 +727,9 @@ function renderOutline(){
 		ctx.textAlign = "center";
 		ctx.fillText("Replay (BETA)", 100, canvas.height - 8);
 		ctx.textAlign = "left";
-		
+
 		bonusText += "| * Replay mode is really glitchy at the moment *";
-		
+
 	}
 
 	ctx.font = "12px Arial";
@@ -960,14 +968,24 @@ function keyPressEvent(e){
 					game_scoreTracker_enabled = true;
 				}
 			}
-			
-			if (e.key == "u"){
-				if (game_replayMode_enabled){
-					game_replayMode_enabled = false;
-					localStorage.setItem("replayMode", "no");
-				}else{
-					game_replayMode_enabled = true;
-					localStorage.setItem("replayMode", "yes");
+
+			if (title_options){
+				if (e.key == "o"){
+					title_options = false;
+				}
+				
+				if (e.key == "1"){
+					if (game_replayMode_enabled){
+						game_replayMode_enabled = false;
+						localStorage.setItem("replayMode", "no");
+					}else{
+						game_replayMode_enabled = true;
+						localStorage.setItem("replayMode", "yes");
+					}
+				}
+			}else{
+				if (e.key == "o"){
+					title_options = true;
 				}
 			}
 
@@ -975,7 +993,7 @@ function keyPressEvent(e){
 				if (title_selected == 0){
 					square_y_starting = square_y;
 					game_stage = 1;
-					square_vy = square_vjump;
+					if (game_playerCount == 1) square_vy = square_vjump;
 				}
 				if (title_selected == 1){
 					game_stage = 3;
@@ -1212,7 +1230,7 @@ function resetGame(state){
 		game_lastRun_walls = [];
 	}else if (state == 1){
 		square_y_starting = square_y;
-		square_vy = square_vjump;
+		if (game_playerCount == 1) square_vy = square_vjump;
 		game_stage = 1;
 		game_lastRun_jumps = [];
 		game_lastRun_walls = [];
