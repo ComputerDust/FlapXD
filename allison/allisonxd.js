@@ -577,11 +577,6 @@ function renderGameOverScreen(){
 
 	ctx.closePath();
 
-	if (!gameOver_oneTime){
-		setHighScore();
-		gameOver_oneTime = true;
-	}
-
 	if (gameOver_y < 100){
 		game_keys = false;
 		gameOver_y += gameOver_internal_vy;
@@ -939,11 +934,6 @@ function keyPressEvent(e){
 
 function keyReleaseEvent(e){
 	if (game_keysPressed.includes(e.key)) game_keysPressed.splice(game_keysPressed.indexOf(e.key), 1);
-
-}
-
-function setHighScore(){
-
 
 }
 
