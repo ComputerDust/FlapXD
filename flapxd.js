@@ -5,10 +5,11 @@
  * 
  * - different messages for when you die
  * - add music
+ * - make replay mode better
  * 
  */
 
-const version = "0.36";
+const version = "0.37";
 var debug = false;
 
 var canvas = document.getElementById("canvasMain");
@@ -693,9 +694,8 @@ function renderGameOverScreen(){
 
 function renderOutline(){
 	ctx.beginPath();
-	ctx.rect(0, 0, canvas.width, canvas.height);
 	ctx.strokeStyle = "white";
-	ctx.stroke();
+	ctx.strokeRect(0, 0, canvas.width, canvas.height);
 	ctx.font = "15px Arial";
 	ctx.textAlign = "left";
 
@@ -740,6 +740,7 @@ function renderOutline(){
 
 	if (debug){
 		ctx.fillText("debug:"
+				+ " g_t: " + game_tick
 				+ " w_vx: " + wall_vx
 				+ " w_sI: " + wall_spawningInterval
 				+ " ws_l: " + walls.length
