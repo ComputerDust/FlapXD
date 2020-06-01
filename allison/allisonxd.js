@@ -285,8 +285,10 @@ function renderTitleScreen(){
 	ctx.font = "20px Arial";
 	rts_colorSet(-1, title_selected, false);
 	ctx.fillText("[space] jump/enter", title_x - 25, 350);
-	ctx.fillText("There is music. Set your volume reasonably.", title_x - 25, 385);
+	ctx.fillText("There is music. Set your volume reasonably.", title_x - 25, 390);
+	ctx.fillText("Do not play until the page has loaded completely.", title_x - 25, 430);
 
+	
 	ctx.textAlign = "left";
 
 	if (title_options){
