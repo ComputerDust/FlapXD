@@ -179,7 +179,7 @@ function tick(){
 			}else if (game_tick > 250 && game_tick < 550){
 				ctx.fillStyle = "rgba(255, 255, 255, 1)";
 			}else{
-				ctx.fillStyle = "rgba(255, 255, 255, " + (((100 - (game_tick - 550))/100))
+				ctx.fillStyle = "rgba(255, 255, 255, " + (((100 - (game_tick - 550))/100));
 			}
 
 			ctx.font = "24px Arial";
