@@ -9,7 +9,7 @@
  * 
  */
 
-const version = "0.37";
+const version = "0.37 (06-01-20)";
 var debug = false;
 
 var canvas = document.getElementById("canvasMain");
@@ -236,16 +236,16 @@ function tick(){
 		}
 		square_vy += gravity;
 	}
-	if (square_vy >= gravity_max){
+	if (square_vy > gravity_max){
 		square_vy = gravity_max;
 	}
-	if (square2_vy >= gravity_max){
+	if (square2_vy > gravity_max){
 		square2_vy = gravity_max;
 	}
-	if (square3_vy >= gravity_max){
+	if (square3_vy > gravity_max){
 		square3_vy = gravity_max;
 	}
-	if (square4_vy >= gravity_max){
+	if (square4_vy > gravity_max){
 		square4_vy = gravity_max;
 	}
 
